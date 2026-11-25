@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Data & privacy{% endblock %}
+
+{% block content %}
+<section class="section dashboard-section">
+  <div class="container narrow">
+
+    <a class="text-link" href="/dashboard">
+      Back to dashboard
+    </a>
+
+    <span class="kicker">ACCOUNT SETTINGS</span>
+    <h1>Data &amp; privacy</h1>
+
+    <p class="muted">
+      Review the data held in your client workspace,
+      download available records and manage deletion
+      where the feature is enabled.
+    </p>
+
+    <section class="workspace-panel">
+      <h2>Export client data</h2>
+
+      <p>
+        Download normalized JSON data for an individual
+        client. The export may contain client names,
+        internal notes, reporting records and other
+        business information.
+      </p>
+
+      <p class="muted">
+        Store downloaded copies securely.
+        Do not share these files through public links.
+      </p>
+
+      {% if clients %}
+        <ul class="data-export-list">
+          {% for client in clients %}
+            <li>
+              <strong>{{ client.display_name }}</strong>
+
+              <a
+                href="/clients/{{ client.id }}/export.json"
+                class="text-link"
+              >
+                Download JSON
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+
+      {% else %}
+        <p>
+          No client records are displayed on this page.
+        </p>
+      {% endif %}
+
+      {% if next_token %}
+        <p>
+          <a
+            class="text-link"
+            href="/settings/data?page={{ next_token | urlencode }}"
+          >
+            Show more clients
+          </a>
+        </p>
+      {% endif %}
+
+      <p class="muted">
+        Exports are available only to the authenticated
+        workspace owner. Large exports can take a minute.
+        A complete file ends with <code>"complete": true</code>;
+        if that line is missing, the download was interrupted
+        and should be repeated.
+      </p>
+    </section>
+
+    <section class="workspace-panel">
+      <h2>Permanent client deletion</h2>
+
+      {% if deletion_enabled %}
+        <div class="notice" role="alert">
+          Permanent deletion is enabled in this environment.
+          Deleted records cannot be restored through
+          the normal workspace.
+        </div>
+
+        <p>
+          For each client, the application requires
+          the exact client name and a recently
+          authenticated session before deletion.
+        </p>
+
+        {% for client in clients %}
+          <form
+            method="post"
+            action="/clients/{{ client.id }}/delete"
+            class="workspace-form"
+          >
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+
+            <h3>{{ client.display_name }}</h3>
+
+            <label for="delete-{{ client.id }}">
+              Enter the client's name exactly
+              to confirm permanent deletion
+            </label>
+
+            <input
+              id="delete-{{ client.id }}"
+              name="confirm_name"
+              autocomplete="off"
+              spellcheck="false"
+              required
+            >
+
+            <p class="muted">
+              If your sign-in is no longer recent,
+              the application will require you
+              to authenticate again.
+            </p>
+
+            <button
+              class="button danger-button"
+              type="submit"
+            >
+              Permanently delete client
+            </button>
+          </form>
+        {% endfor %}
+
+      {% else %}
+        <div class="notice">
+          Self-service permanent deletion is disabled.
+          Secure deletion and recovery checks must be
+          completed before this feature is enabled.
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="workspace-panel">
+      <h2>Request assistance</h2>
+
+      <p>
+        For a full account deletion request
+        or a privacy-related question, contact:
+      </p>
+
+      <p>
+        <a
+          class="text-link"
+          href="mailto:{{ settings.contact_email }}"
+        >
+          {{ settings.contact_email }}
+        </a>
+      </p>
+
+      <p class="muted">
+        Never send passwords, payment card numbers,
+        private sharing tokens or API keys by email.
+      </p>
+    </section>
+
+  </div>
+</section>
+{% endblock %}

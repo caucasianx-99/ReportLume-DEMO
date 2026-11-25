@@ -1,0 +1,15 @@
+# Secret scanning rules for gitleaks (CI job "security-scans").
+# The default rules stay on. Only the tests directory is excluded: its
+# provider keys, tokens and webhook secrets are fake, local-only values that
+# never reach a real provider. Never put a real credential under tests/.
+
+title = "Reportlume gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Fake, local-only credentials in offline test fixtures"
+paths = [
+    '''^tests/''',
+]

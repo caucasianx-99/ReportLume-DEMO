@@ -1,0 +1,123 @@
+{% extends "report_public_base.html" %}
+{% from "_date_display.html" import month_label %}
+
+{% block title %}
+  {{ case.headline }} · Case study
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container report-wrap">
+
+    <div class="report-toolbar">
+      <span class="muted">
+        Anonymized case study
+      </span>
+
+      {% if pdf_url %}
+        <a
+          class="button secondary"
+          href="{{ pdf_url }}"
+          rel="nofollow"
+        >
+          Download PDF
+        </a>
+      {% endif %}
+    </div>
+
+    <article class="report-paper">
+
+      <header class="report-heading">
+        <p class="report-eyebrow">
+          CLIENT CASE STUDY
+        </p>
+
+        {% if case.trial_only %}
+          <p class="report-trial-mark">
+            TRIAL EDITION
+          </p>
+        {% endif %}
+
+        <h1>{{ case.headline }}</h1>
+
+        <p class="report-subtitle">
+          Reporting period:
+          {{ month_label(case.period) }}
+        </p>
+      </header>
+
+      <section class="report-section">
+        <h2>Context</h2>
+
+        <p class="preserve-lines">
+          {{ case.context }}
+        </p>
+      </section>
+
+      <section class="report-section">
+        <h2>Approach</h2>
+
+        <p class="preserve-lines">
+          {{ case.approach }}
+        </p>
+      </section>
+
+      <section class="report-section">
+        <h2>Observed outcome</h2>
+
+        <p class="preserve-lines">
+          {{ case.outcome }}
+        </p>
+
+        <div class="report-metrics">
+          <div class="report-metric">
+            <span>Posts with metrics</span>
+
+            <strong>
+              {{ case.sample_size if case.sample_size is not none else "Not logged" }}
+            </strong>
+          </div>
+
+          <div class="report-metric">
+            <span>Median post impressions</span>
+
+            <strong>
+              {% if case.median_post_impressions is none %}
+                Not logged
+              {% elif case.median_post_impressions == (case.median_post_impressions|int) %}
+                {{ case.median_post_impressions|int }}
+              {% else %}
+                {# Display only: x.5 rounds half up (488.5 shows as 489). #}
+                {{ ((case.median_post_impressions + 0.5)|round(0, 'floor'))|int }}
+              {% endif %}
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="report-section report-limitations">
+        <h2>How to read these results</h2>
+
+        <p>{{ case.limitation }}</p>
+
+        <p>
+          These are descriptive observations from
+          the reporting period, not proof of
+          a causal performance improvement.
+        </p>
+
+        <p>
+          The reported impressions describe individual
+          posts rather than total monthly account traffic.
+        </p>
+      </section>
+
+      <footer class="report-footer">
+        Anonymized case study ·
+        {{ month_label(case.period) }}
+      </footer>
+
+    </article>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% from "_date_display.html" import month_label %}
+
+{% block title %}
+  Renewals &amp; attention · {{ client.display_name }}
+{% endblock %}
+
+{% block extra_head %}
+  <link
+    rel="stylesheet"
+    href="/static/css/reporting.css"
+  >
+{% endblock %}
+
+{% block content %}
+<section class="section dashboard-section">
+  <div class="container report-wrap">
+
+    <a
+      class="text-link"
+      href="/clients/{{ client.id }}"
+    >
+      Back to {{ client.display_name }}
+    </a>
+
+    <span class="kicker">CLIENT MANAGEMENT</span>
+
+    <h1>Renewals &amp; attention</h1>
+
+    <p class="muted">
+      Review upcoming contract renewals and reporting changes
+      that may need your attention.
+    </p>
+
+    <div class="workspace-panel">
+      <h2>Items to review</h2>
+
+      {% if alerts %}
+        <ul class="attention-list">
+          {% for item in alerts %}
+            <li>
+              <strong>
+                {% if item.kind == "renewal" %}
+                  Contract renewal
+                {% elif item.kind == "performance" %}
+                  Performance review
+                {% elif item.kind == "report" %}
+                  Reporting
+                {% else %}
+                  Attention
+                {% endif %}
+              </strong>
+
+              <p>{{ item.message }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>
+          No attention items were identified from the information
+          currently available.
+        </p>
+      {% endif %}
+
+      <p class="muted">
+        This page checks saved information when it is opened.
+        It does not send automatic email or background alerts.
+      </p>
+    </div>
+
+    <div class="workspace-panel">
+      <h2>Published report history</h2>
+
+      {% if history %}
+        <div class="proof-table-wrap">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th scope="col">Month</th>
+                <th scope="col">Posts &amp; replies</th>
+                <th scope="col">Median impressions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for row in history %}
+                <tr>
+                  <td>{{ month_label(row.period) }}</td>
+
+                  <td>
+                    {{ row.sample_size if row.sample_size is not none else "Not logged" }}
+                  </td>
+
+                  <td>
+                    {% if row.median_impressions is not none %}
+                      {{ row.median_impressions|round(0)|int }}
+                    {% else %}
+                      Not logged
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="muted">
+          No published reports are available for comparison yet.
+        </p>
+      {% endif %}
+
+      <p class="muted">
+        Missing reports and groups that are not comparable
+        are not interpreted as zero performance.
+      </p>
+
+      <a
+        class="button secondary"
+        href="/clients/{{ client.id }}/reports"
+      >
+        Open monthly reports
+      </a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

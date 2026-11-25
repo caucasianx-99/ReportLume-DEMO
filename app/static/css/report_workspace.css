@@ -1,0 +1,156 @@
+
+/* Owner-only Reportlume workspace. Not included in client reports or PDF. */
+
+.report-owner-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin: 18px 0 26px;
+    padding: 12px 16px;
+    border: 1px solid #52647c;
+    border-radius: 10px;
+}
+.report-owner-nav a { color: #b9f0e8; text-underline-offset: 3px; }
+.report-owner-nav a:focus-visible { outline: 2px solid #39c7b5; outline-offset: 4px; }
+.workspace-panel { scroll-margin-top: 20px; }
+.workspace-panel h2 { margin-top: 0; }
+.report-workflow-panel { border-inline-start: 3px solid #39c7b5; }
+.report-secondary-panel { border-inline-start: 3px solid #52647c; }
+.report-secondary-panel > details > summary { cursor: pointer; padding: 6px 0; }
+.report-secondary-panel > details > summary:focus-visible { outline: 2px solid #39c7b5; }
+
+.report-action-notice {
+    border-inline-start: 4px solid #39c7b5;
+    background: rgba(57, 199, 181, 0.10);
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin: 16px 0 24px;
+    scroll-margin-top: 20px;
+}
+.report-action-notice:focus { outline: none; }
+.report-action-notice:focus-visible { outline: 2px solid #39c7b5; }
+.report-action-notice p { margin: 0; }
+.report-link-box { border-inline-start: 4px solid #39c7b5; }
+
+.report-draft-guide {
+    border-inline-start: 3px solid #39c7b5;
+    padding: 16px 18px;
+    margin: 16px 0 24px;
+    background: rgba(57, 199, 181, 0.07);
+    border-radius: 8px;
+}
+.report-draft-guide p { margin: 8px 0; }
+.report-draft-guide textarea {
+    width: 100%;
+    min-height: 110px;
+    resize: vertical;
+    margin: 10px 0;
+    padding: 12px;
+    color: inherit;
+    background: transparent;
+    border: 1px solid #52647c;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.report-compose-buttons, .report-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+.report-compose-buttons button { min-height: 40px; }
+.report-form-error {
+    border-inline-start: 4px solid #e5a24d;
+    scroll-margin-top: 20px;
+}
+.report-form-error:focus { outline: none; }
+.report-form-error:focus-visible { outline: 2px solid #39c7b5; outline-offset: 3px; }
+.report-publish-warning {
+    border-inline-start: 4px solid #e5a24d;
+    background: rgba(229, 162, 77, 0.10);
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #f2f5fa;
+}
+.report-version-label { font-weight: 650; color: #f2f5fa; }
+.report-version-summary { display: flex; flex-wrap: wrap; gap: 16px 30px; }
+.report-version-summary p { margin: 4px 0; }
+
+.publication-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+    display: grid;
+    gap: 12px;
+}
+.publication-checklist li {
+    display: grid;
+    gap: 6px;
+    padding: 14px 16px;
+    border: 1px solid #52647c;
+    border-radius: 8px;
+    background: rgba(16, 21, 31, 0.2);
+}
+.publication-checklist li > strong { font-weight: 700; color: #f2f5fa; }
+.publication-checklist li > span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #ffd39a;
+}
+.publication-checklist li > p { color: #a8b5c6; margin: 0; }
+.consent-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 16px 0;
+    line-height: 1.5;
+}
+.consent-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+    flex: 0 0 auto;
+    accent-color: #39c7b5;
+}
+.report-preview-banner {
+    margin: 20px 0 24px;
+    border-inline-start: 4px solid #39c7b5;
+}
+.report-preview-save-form { margin: 18px 0 10px; }
+.report-preview-save-form textarea[hidden] { display: none; }
+.report-preview-banner .muted { font-size: 0.85rem; }
+
+.report-share-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.report-share-table-wrap table { width: 100%; min-width: 550px; }
+.report-share-table-wrap td, .report-share-table-wrap th {
+    overflow-wrap: normal;
+    word-break: normal;
+    white-space: normal;
+}
+.report-share-table-wrap button { white-space: nowrap; }
+.report-link-status { font-weight: 650; }
+.report-link-status[data-state="Active"] { color: #b9f0e8; }
+.report-link-status[data-state="Expired"],
+.report-link-status[data-state="Revoked"] { color: #d3dbe6; }
+.report-feedback-group {
+    margin: 18px 0;
+    padding: 14px 18px;
+    border: 1px solid #52647c;
+    border-radius: 8px;
+}
+.report-feedback-group h4 { margin: 0 0 8px; }
+.report-feedback-group ul { margin-bottom: 0; }
+.report-history-note { margin-top: 12px; }
+
+@media (max-width: 580px) {
+    .report-owner-nav { padding: 10px 12px; }
+    .report-version-summary { display: block; }
+    .report-compose-buttons, .report-preview-save-form { width: 100%; }
+    .report-compose-buttons button, .report-preview-save-form button { width: 100%; }
+    .report-share-table-wrap { padding-bottom: 4px; }
+    .report-share-table-wrap table { min-width: 540px; }
+}

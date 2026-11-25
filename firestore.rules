@@ -1,0 +1,14 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Reportlume uses server-side Firestore access.
+    // Direct browser/mobile Firestore SDK access is denied.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+  }
+}

@@ -1,0 +1,528 @@
+{# Shared white-label report used by HTML, PDF and synthetic demonstration. #}
+
+{% set months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+] %}
+
+{% macro human_day(value) -%}
+    {%- if value is string
+          and value|length >= 10
+          and value[4] == '-'
+          and value[7] == '-'
+          and 1 <= (value[5:7]|int) <= 12 -%}
+        {{- months[(value[5:7]|int) - 1] ~ ' ' ~
+            (value[8:10]|int) ~ ', ' ~ value[:4] -}}
+    {%- else -%}
+        {{- value or 'Not recorded' -}}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro human_month(value) -%}
+    {%- if value is string
+          and value|length == 7
+          and value[4] == '-'
+          and 1 <= (value[5:7]|int) <= 12 -%}
+        {{- months[(value[5:7]|int) - 1] ~ ' ' ~ value[:4] -}}
+    {%- else -%}
+        {{- value or 'Not recorded' -}}
+    {%- endif -%}
+{%- endmacro %}
+
+{# Counts are shown as whole numbers. A median of two middle values can be
+   x.5; it is rounded half up for display only (488.5 shows as 489) and the
+   stored value keeps its exact figure. #}
+{% macro number(value) -%}
+    {%- if value is none -%}
+        —
+    {%- elif value is number and value == (value|int) -%}
+        {{- '{:,}'.format(value|int) -}}
+    {%- elif value is number -%}
+        {{- '{:,}'.format(((value + 0.5)|round(0, 'floor'))|int) -}}
+    {%- else -%}
+        {{- value -}}
+    {%- endif -%}
+{%- endmacro %}
+
+{% set v2 = snapshot.schema_version|default(1) >= 2 %}
+{% set stats = snapshot.observed %}
+
+<article class="report-paper report-theme-{{ snapshot.brand_theme|default('teal') }}">
+    <header class="report-heading">
+        {% if snapshot.brand_logo_b64 %}
+            <img
+                class="report-agency-logo"
+                src="data:image/png;base64,{{ snapshot.brand_logo_b64 }}"
+                alt="Agency logo"
+            >
+        {% endif %}
+
+        <div class="report-brand">{{ snapshot.brand or 'Your Agency' }}</div>
+
+        {% if snapshot.trial_watermark %}
+            <p class="report-trial-mark">TRIAL EDITION</p>
+        {% endif %}
+
+        <p class="report-eyebrow">
+            MONTHLY CLIENT REPORT · {{ human_month(snapshot.period) }}
+        </p>
+
+        <h1>{{ snapshot.client.display_name }}</h1>
+
+        <p class="report-subtitle">
+            Content performance on X ·
+            {% if snapshot.window is defined %}
+                {{ human_day(snapshot.window.start) }}
+                – {{ human_day(snapshot.window.end) }}
+            {% else %}
+                {{ human_month(snapshot.period) }}
+            {% endif %}
+        </p>
+
+        {% if v2 and snapshot.measurement is defined and snapshot.measurement.dates %}
+            <p class="report-explainer">Data as of: {% for measured in snapshot.measurement.dates %}{{ human_day(measured) }}{{ ', ' if not loop.last else '' }}{% endfor %}.</p>
+        {% endif %}
+    </header>
+
+    <section class="report-section">
+        <h2>Executive summary</h2>
+
+        {% set executive_summary = (
+            snapshot.writing.executive_summary
+            if snapshot.writing is defined and snapshot.writing.executive_summary
+            else 'No executive summary was provided.'
+        ) %}
+
+        <p class="preserve-lines">{{ executive_summary }}</p>
+    </section>
+
+    <section class="report-section">
+        <h2>Performance</h2>
+
+        <div class="report-metrics">
+            <div class="report-metric">
+                <span>Posts &amp; replies published</span>
+
+                <strong>
+                    {{ number(stats.post_count if v2 else stats.impressions.n) }}
+                </strong>
+            </div>
+
+            <div class="report-metric">
+                <span>Total impressions</span>
+
+                <strong>
+                    {{ number(stats.impressions.total) if v2 else '—' }}
+                </strong>
+
+                <small>
+                    {{ stats.impressions.coverage ~ ' posts with data'
+                       if v2 else 'Not available in this archived version' }}
+                </small>
+            </div>
+
+            <div class="report-metric">
+                <span>Typical post (median) impressions</span>
+
+                <strong>{{ number(stats.impressions.median) }}</strong>
+            </div>
+
+            <div class="report-metric">
+                <span>Total engagements</span>
+
+                <strong>
+                    {{ number(stats.engagements.total) if v2 else '—' }}
+                </strong>
+
+                {% if not v2 %}
+                    <small>Not available in this archived version</small>
+                {% elif stats.engagements.coverage != stats.impressions.coverage %}
+                    <small>Engagement coverage: {{ stats.engagements.coverage }} posts</small>
+                {% endif %}
+            </div>
+
+            <div class="report-metric">
+                <span>Typical post (median) engagements</span>
+
+                <strong>{{ number(stats.engagements.median) }}</strong>
+            </div>
+
+            {% if v2 and stats.metrics is defined %}
+                <div class="report-metric">
+                    <span>Likes</span>
+
+                    <strong>{{ number(stats.metrics.likes.total) }}</strong>
+
+                    {% if stats.metrics.likes.coverage != stats.impressions.coverage %}
+                        <small>Likes coverage: {{ stats.metrics.likes.coverage }} posts</small>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        {% if v2 and stats.metrics is defined %}
+            {% set extra = namespace(has_data=false) %}
+
+            {% for key in [
+                'replies', 'reposts', 'bookmarks',
+                'profile_visits', 'new_follows', 'shares'
+            ] %}
+                {% if key in stats.metrics and stats.metrics[key].total is not none %}
+                    {% set extra.has_data = true %}
+                {% endif %}
+            {% endfor %}
+
+            {% if extra.has_data %}
+                <h3>Additional activity</h3>
+
+                <div class="report-compact-metrics">
+                    {% for label, key in [
+                        ('Replies received', 'replies'),
+                        ('Reposts', 'reposts'),
+                        ('Bookmarks', 'bookmarks'),
+                        ('Profile visits', 'profile_visits'),
+                        ('New follows', 'new_follows'),
+                        ('Shares', 'shares')
+                    ] %}
+                        {% if key in stats.metrics and stats.metrics[key].total is not none %}
+                            <div>
+                                <span>{{ label }}</span>
+
+                                <strong>
+                                    {{ number(stats.metrics[key].total) }}
+                                </strong>
+
+                                <small>
+                                    {{ stats.metrics[key].coverage }} posts
+                                </small>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% include "report_chart.html" %}
+        {% endif %}
+    </section>
+
+    {% if v2 and snapshot.breakdown is defined %}
+        <section class="report-section">
+            <h2>Who published what</h2>
+
+            <p class="report-explainer">
+                Only explicitly classified Posts and Replies are counted
+                in their corresponding groups.
+            </p>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Content</th>
+                        <th>Items</th>
+                        <th>Median impressions</th>
+                        <th>Median engagements</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for group in snapshot.breakdown.authorship_content_type %}
+                        <tr>
+                            <td>
+                                {{ group.authorship }} · {{ group.content_type }}
+                            </td>
+
+                            <td>{{ number(group.count) }}</td>
+
+                            <td>{{ number(group.impressions.median) }}</td>
+
+                            <td>{{ number(group.engagements.median) }}</td>
+                        </tr>
+                    {% endfor %}
+
+                    {% if snapshot.breakdown.not_categorized_count %}
+                        <tr>
+                            <td>Other / not categorized</td>
+                            <td>
+                                {{ number(snapshot.breakdown.not_categorized_count) }}
+                            </td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+
+    <section class="report-section">
+        <h2>Work delivered</h2>
+
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Deliverable</th>
+                    <th>Planned</th>
+                    <th>Delivered</th>
+                    <th>Evidence</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for item in snapshot.proof.deliverables %}
+                    <tr>
+                        <td>
+                            {{ 'Original posts delivered' if item.name == 'Posts'
+                               else ('Replies written' if item.name == 'Replies'
+                               else item.name) }}
+                        </td>
+
+                        <td>{{ number(item.committed) }}</td>
+
+                        <td>
+                            {{ 'Not logged' if item.delivered is none and item.name in ['Threads', 'Strategy calls']
+                               else number(item.delivered) }}
+                        </td>
+
+                        <td>
+                            {{ 'From X Analytics and saved classifications'
+                               if item.name in ['Posts', 'Replies']
+                               else 'Logged by ' ~ (snapshot.brand or 'Your Agency') }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    {% if snapshot.proof.comparison.status == 'descriptive_only' %}
+        <section class="report-section">
+            <h2>Ghostwriter and client content</h2>
+
+            <p class="report-explainer">
+                Both groups met the measurement-compatibility checks.
+                This comparison describes an association, not a causal impact.
+            </p>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Median per post</th>
+                        <th>Ghostwriter</th>
+                        <th>Client</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td>Impressions</td>
+
+                        <td>
+                            {{ number(snapshot.proof.comparison.groups.Ghostwriter.median_impressions) }}
+                        </td>
+
+                        <td>
+                            {{ number(snapshot.proof.comparison.groups.Client.median_impressions) }}
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Engagements</td>
+
+                        <td>
+                            {{ number(snapshot.proof.comparison.groups.Ghostwriter.median_engagements) }}
+                        </td>
+
+                        <td>
+                            {{ number(snapshot.proof.comparison.groups.Client.median_engagements) }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    {% endif %}
+
+    <section class="report-section">
+        <h2>Top posts</h2>
+
+        {% if snapshot.top_posts is defined and snapshot.top_posts %}
+            <ol class="report-top-posts">
+                {% for post in snapshot.top_posts %}
+                    <li>
+                        <strong>
+                            {{ number(post.impressions) }} impressions
+                        </strong>
+
+                        <span class="report-post-meta">
+                            {{ human_day(post.published_date) }} ·
+                            {{ post.authorship }} · {{ post.content_type }}
+                        </span>
+
+                        {% if post.post_text %}
+                            <p class="preserve-lines">{{ post.post_text }}</p>
+                        {% endif %}
+
+                        {% if post.post_url %}
+                            <a
+                                href="{{ post.post_url }}"
+                                rel="noopener noreferrer nofollow"
+                            >
+                                View original post
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+        {% else %}
+            <p>No eligible post-level examples are available in this revision.</p>
+        {% endif %}
+    </section>
+
+    {% if snapshot.topics is defined or snapshot.formats is defined %}
+        <section class="report-section">
+            <h2>Content themes</h2>
+
+            <div class="report-two-col">
+                {% for heading, entries in [
+                    ('Topics', snapshot.topics|default([])),
+                    ('Formats', snapshot.formats|default([]))
+                ] %}
+                    <div>
+                        <h3>{{ heading }}</h3>
+
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Posts</th>
+                                    <th>Median impressions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for item in entries %}
+                                    <tr>
+                                        <td>{{ item.label }}</td>
+                                        <td>{{ number(item.count) }}</td>
+                                        <td>
+                                            {{ number(item.median_impressions) }}
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3">
+                                            No categories recorded.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if snapshot.goal is defined %}
+        <section class="report-section">
+            <h2>Goals and previous reports</h2>
+
+            <p>
+                Configured per-post impression target:
+                <strong>{{ number(snapshot.goal.target_post_impressions) }}</strong>.
+
+                Observed median:
+                <strong>{{ number(snapshot.goal.observed_median_post_impressions) }}</strong>.
+            </p>
+
+            {% if snapshot.since_started is defined %}
+                <h3>Since we started</h3>
+
+                <p>
+                    Collaboration began:
+                    {{ human_day(snapshot.since_started.collaboration_started) }}.
+                </p>
+
+                {% if snapshot.since_started.published_report_history %}
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Published month</th>
+                                <th>Measured posts</th>
+                                <th>Median impressions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for item in snapshot.since_started.published_report_history %}
+                                <tr>
+                                    <td>{{ human_month(item.period) }}</td>
+                                    <td>{{ number(item.sample_size) }}</td>
+                                    <td>{{ number(item.median_impressions) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>
+                        Previous published report data is not yet available.
+                    </p>
+                {% endif %}
+
+                {% if snapshot.since_started.history_truncated %}
+                    <p class="report-explainer">
+                        Some earlier published months are not included here.
+                    </p>
+                {% endif %}
+            {% endif %}
+        </section>
+    {% endif %}
+
+    {% if snapshot.writing is defined %}
+        <section class="report-section">
+            <h2>Next month's plan</h2>
+
+            <p class="preserve-lines">{{ snapshot.writing.next_month_plan or 'No plan was provided.' }}</p>
+
+            {% if snapshot.writing.client_message %}
+                <h3>Message to the client</h3>
+
+                <p class="preserve-lines">{{ snapshot.writing.client_message }}</p>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    <section class="report-section report-limitations">
+        <h2>About these numbers</h2>
+
+        <p>
+            Figures are cumulative observations of included individual X
+            posts at the time of export, not account-wide monthly traffic.
+            Posts are grouped by publication month, not by the month in which
+            their impressions occurred. They do not demonstrate causation.
+        </p>
+
+        <p>
+            Missing measurements are shown as —, not zero. A recorded zero
+            remains 0. Authorship, post/reply labels and content categories
+            are entered by the agency; other deliverables are self-reported.
+            Targets are reference points set by the agency, not verified
+            contractual results.
+        </p>
+
+        {% if v2 and snapshot.measurement is defined and snapshot.measurement.dates %}
+            <p>
+                Data as of: {% for measured in snapshot.measurement.dates %}{{ human_day(measured) }}{{ ', ' if not loop.last else '' }}{% endfor %}.
+
+                For date-only data, a conservative observation age subtracts
+                one day. Comparisons require at least seven days of maturity
+                and compatible observations; these precautions do not prove
+                a causal performance effect.
+            </p>
+        {% endif %}
+    </section>
+
+    <footer class="report-footer">
+        Prepared by {{ snapshot.brand or 'Your Agency' }} ·
+        Data source: downloaded X Analytics and agency-recorded delivery information
+    </footer>
+</article>

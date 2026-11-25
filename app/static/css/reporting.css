@@ -1,0 +1,673 @@
+
+/* Reportlume customer report, PDF and review styles. */
+
+:root {
+    --paper-ink: #203344;
+    --paper-muted: #617383;
+    --report-accent: #147f7a;
+}
+
+.report-wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 18px 16px 42px;
+}
+
+.report-toolbar {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 18px;
+}
+
+.report-toolbar .muted {
+    color: #7a8795;
+    font-size: 0.86rem;
+}
+
+.report-toolbar .button,
+.report-review-form button {
+    display: inline-block;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #1d8078;
+    color: #ffffff;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-weight: 650;
+}
+
+.report-toolbar .button.secondary {
+    background: #ffffff;
+    color: #22585a;
+    border-color: #c9d8dc;
+}
+
+.report-toolbar a:focus-visible,
+.report-review-form :focus-visible {
+    outline: 3px solid #50c1b5;
+    outline-offset: 2px;
+}
+
+.report-paper {
+    box-sizing: border-box;
+    background: #ffffff;
+    color: var(--paper-ink);
+    border-radius: 13px;
+    border: 1px solid #dbe5e9;
+    padding: 34px;
+    line-height: 1.55;
+    box-shadow: 0 8px 30px rgba(12, 30, 45, 0.06);
+    font-family: Arial, "DejaVu Sans", sans-serif;
+}
+
+.report-paper * {
+    box-sizing: border-box;
+}
+
+.report-heading {
+    border-bottom: 3px solid #e3eeed;
+    padding-bottom: 22px;
+    margin-bottom: 6px;
+}
+
+.report-heading h1 {
+    font-size: 2.1rem;
+    line-height: 1.2;
+    margin: 8px 0;
+}
+
+.report-heading .report-subtitle {
+    color: #596d7d;
+    margin-bottom: 0;
+}
+
+.report-paper h2 {
+    font-size: 1.32rem;
+    margin: 0 0 12px;
+    line-height: 1.3;
+}
+
+.report-paper h3 {
+    font-size: 1rem;
+    margin: 18px 0 8px;
+}
+
+.report-brand {
+    font-size: 1.13rem;
+    font-weight: 800;
+    color: var(--report-accent);
+}
+
+.report-theme-blue {
+    --report-accent: #2556a4;
+}
+
+.report-theme-slate {
+    --report-accent: #35465b;
+}
+
+.report-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.095em;
+    color: #5f7180;
+    font-size: 0.76rem;
+    font-weight: 650;
+    margin-top: 20px;
+}
+
+.report-section {
+    border-bottom: 1px solid #e2e8ed;
+    padding: 25px 0;
+}
+
+.report-explainer {
+    color: #546979;
+    font-size: 0.91rem;
+    margin: 9px 0 18px;
+}
+
+.report-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin: 22px 0;
+}
+
+.report-metric,
+.report-compact-metrics > div {
+    background: #f0f7f7;
+    padding: 15px;
+    border-radius: 9px;
+    min-width: 0;
+}
+
+.report-metric span,
+.report-compact-metrics span {
+    display: block;
+    font-size: 0.82rem;
+    color: #576d7c;
+}
+
+.report-metric strong {
+    display: block;
+    font-size: 1.45rem;
+    margin: 8px 0 4px;
+    overflow-wrap: anywhere;
+}
+
+.report-metric small,
+.report-compact-metrics small {
+    color: #59747a;
+    font-size: 0.72rem;
+    display: block;
+}
+
+.report-compact-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.report-compact-metrics strong {
+    display: block;
+    font-size: 1.06rem;
+    margin: 6px 0 2px;
+}
+
+.report-chart {
+    margin: 25px 0 8px;
+    padding: 16px 12px 8px;
+    border: 1px solid #dce7e8;
+    border-radius: 10px;
+}
+
+.report-chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.report-chart-tick {
+    font: 12px Arial, sans-serif;
+    fill: #516779;
+}
+
+.report-chart-label {
+    font: 13px Arial, sans-serif;
+    fill: #3a5b66;
+}
+
+.report-chart figcaption {
+    font-size: 0.8rem;
+    color: #59707e;
+    margin-top: 6px;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+    margin: 14px 0;
+    table-layout: fixed;
+}
+
+.report-table th,
+.report-table td {
+    border-bottom: 1px solid #dfe6eb;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+.report-table th {
+    color: #385369;
+    background: #f3f7f8;
+    font-weight: 700;
+}
+
+.report-two-col {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.report-top-posts {
+    padding-left: 25px;
+}
+
+.report-top-posts li {
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8ed;
+    overflow-wrap: anywhere;
+}
+
+.report-post-meta {
+    display: block;
+    font-size: 0.78rem;
+    color: #536576;
+    margin: 4px 0;
+}
+
+.report-paper a {
+    color: #176a70;
+}
+
+.report-agency-logo {
+    max-width: 240px;
+    max-height: 95px;
+    display: block;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.report-trial-mark {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #754c00;
+    background: #fff5df;
+    border: 2px solid #e8bd77;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+.preserve-lines {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.report-limitations {
+    font-size: 0.91rem;
+}
+
+.report-footer {
+    padding-top: 18px;
+    color: #596e7e;
+    font-size: 0.78rem;
+}
+
+.report-review-panel {
+    color: #203344;
+    margin-top: 25px;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #dbe5e9;
+    border-radius: 10px;
+}
+
+.report-review-form {
+    display: grid;
+    gap: 11px;
+    max-width: 700px;
+    margin: 20px 0;
+}
+
+.report-review-form label {
+    font-weight: 650;
+}
+
+.report-review-form input:not([type=checkbox]),
+.report-review-form textarea,
+.report-review-form select {
+    padding: 11px;
+    font: inherit;
+    color: #203344;
+    background: #ffffff;
+    border: 1px solid #bbc9d1;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.report-review-form .review-confirm {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.review-notice {
+    padding: 12px;
+    border-left: 4px solid #168d85;
+    background: #edf8f5;
+}
+
+.client-report-page {
+    margin: 0;
+    background: #edf2f4;
+    color: #203344;
+    font-family: Arial, "DejaVu Sans", sans-serif;
+}
+
+.public-report-main {
+    min-height: 100vh;
+}
+
+.client-report-page .report-toolbar .muted {
+    color: #596e7e;
+}
+
+@media (max-width: 730px) {
+    .report-paper {
+        padding: 20px;
+    }
+
+    .report-metrics,
+    .report-compact-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .report-two-col {
+        grid-template-columns: 1fr;
+    }
+
+    .report-table {
+        font-size: 0.78rem;
+    }
+
+    .report-table th,
+    .report-table td {
+        padding: 7px 5px;
+    }
+}
+
+@media (max-width: 410px) {
+    .report-metrics,
+    .report-compact-metrics {
+        grid-template-columns: 1fr;
+    }
+
+    .report-paper {
+        padding: 14px;
+    }
+}
+
+@page {
+    size: A4;
+    margin: 18mm 14mm 20mm;
+
+    @bottom-center {
+        content: counter(page) " / " counter(pages);
+        font-size: 9pt;
+        color: #5b7280;
+        font-family: "DejaVu Sans", sans-serif;
+    }
+}
+
+@media print {
+    html,
+    body {
+        background: #ffffff !important;
+        color: #203344 !important;
+    }
+
+    .site-header,
+    .site-footer,
+    .report-toolbar,
+    .report-review-panel,
+    .workspace-panel {
+        display: none !important;
+    }
+
+    .report-paper {
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+    }
+
+    .report-section {
+        break-inside: auto;
+    }
+
+    .report-metric,
+    .report-compact-metrics > div,
+    .report-top-posts li,
+    .report-table tr {
+        break-inside: avoid;
+    }
+
+    .report-metrics,
+    .report-compact-metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    a {
+        text-decoration: none;
+        color: #203344;
+    }
+
+    .report-chart {
+        break-inside: avoid;
+    }
+}
+
+.report-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 16px 0;
+}
+
+.report-actions form {
+    margin: 0;
+}
+
+.report-link-box {
+    border: 2px solid #1c7b79;
+}
+
+.report-copy-link {
+    box-sizing: border-box;
+    width: 100%;
+    font-family: monospace;
+    overflow-wrap: anywhere;
+}
+
+.report-wrap .workspace-panel {
+    margin: 20px 0;
+}
+
+.report-wrap .workspace-form {
+    display: grid;
+    gap: 15px;
+}
+
+.report-wrap .form-field {
+    display: grid;
+    gap: 5px;
+}
+
+.report-wrap .form-field input,
+.report-wrap .form-field textarea,
+.report-wrap select {
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: 10px;
+}
+
+.report-wrap code {
+    overflow-wrap: anywhere;
+}
+
+.agency-logo-preview {
+    max-width: 240px;
+    max-height: 95px;
+    object-fit: contain;
+}
+
+.report-paper {
+    overflow-wrap: break-word;
+}
+
+.report-paper h1,
+.report-paper h2,
+.report-paper h3,
+.report-paper h4 {
+    break-after: avoid;
+    page-break-after: avoid;
+}
+
+.report-paper .report-section > h2 + p,
+.report-paper .report-section > h3 + p {
+    break-before: avoid;
+}
+
+.report-paper .report-trial-mark {
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+
+.report-paper .report-limitations p {
+    line-height: 1.6;
+}
+
+.report-paper .report-table tbody tr {
+    break-inside: avoid;
+}
+
+.report-paper .report-post-meta {
+    overflow-wrap: break-word;
+}
+
+@media screen and (max-width: 580px) {
+    .report-paper .report-table {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        table-layout: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .report-paper .report-table th,
+    .report-paper .report-table td {
+        min-width: 88px;
+        overflow-wrap: normal;
+        word-break: normal;
+    }
+
+    .report-paper .report-table th:first-child,
+    .report-paper .report-table td:first-child {
+        min-width: 140px;
+    }
+
+    .report-paper .report-heading h1 {
+        font-size: 1.7rem;
+    }
+}
+
+@media print {
+    .report-paper {
+        overflow: visible;
+        font-family: "DejaVu Sans", sans-serif;
+    }
+
+    .report-paper .report-table {
+        display: table;
+        table-layout: fixed;
+        overflow: visible;
+        width: 100%;
+    }
+
+    .report-paper .report-table th,
+    .report-paper .report-table td {
+        min-width: 0;
+        overflow-wrap: break-word;
+    }
+
+    .report-paper .report-heading,
+    .report-paper .report-metrics,
+    .report-paper .report-chart {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .report-paper .report-section {
+        orphans: 3;
+        widows: 3;
+    }
+}
+
+/* Customer feedback form: field-level validation styles. */
+
+.report-review-form .review-field-error {
+    color: #9b1c20;
+    font-size: 0.87rem;
+    margin: 0;
+}
+
+.report-review-form [aria-invalid="true"] {
+    border-color: #a32929;
+    border-width: 2px;
+}
+
+.review-notice-error {
+    background: #fff0ed;
+    border-left-color: #ae3434;
+    color: #672020;
+}
+
+/* Final PDF typography and pagination safeguards. */
+
+@media print {
+    .report-paper h2,
+    .report-paper h3 {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .report-paper .report-section > h2 + p,
+    .report-paper .report-section > h3 + table,
+    .report-paper .report-section > h3 + .report-two-col {
+        break-before: avoid;
+    }
+
+    .report-paper .report-table {
+        table-layout: fixed;
+    }
+
+    .report-paper .report-table thead {
+        display: table-header-group;
+    }
+
+    .report-paper .report-table tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .report-paper .report-table th,
+    .report-paper .report-table td {
+        overflow-wrap: anywhere;
+        word-break: normal;
+        padding: 8px 7px;
+    }
+
+    .report-paper .report-two-col {
+        display: block;
+    }
+
+    .report-paper .report-two-col > div {
+        margin-bottom: 14px;
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .report-paper .report-top-posts li {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .report-paper .report-explainer,
+    .report-paper .report-post-meta,
+    .report-paper .report-eyebrow {
+        color: #4b6171;
+    }
+}

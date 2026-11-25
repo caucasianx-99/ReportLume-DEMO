@@ -1,0 +1,158 @@
+{% from "_date_display.html" import month_label %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="referrer"
+        content="no-referrer"
+    >
+
+    <title>
+        Case study · {{ month_label(case.period) }}
+    </title>
+
+    <style>
+        h1,
+        h2,
+        h3 {
+            break-after: avoid;
+            page-break-after: avoid;
+        }
+
+        .report-metric,
+        .report-metrics,
+        .report-heading {
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+
+<body class="pdf-body">
+
+    <article class="report-paper">
+
+        <header class="report-heading">
+
+            <p class="report-eyebrow">
+                ANONYMIZED CLIENT CASE STUDY
+            </p>
+
+            {% if draft %}
+                <p class="report-trial-mark">
+                    DRAFT — NOT APPROVED FOR PUBLICATION
+                </p>
+            {% endif %}
+
+            {% if case.trial_only %}
+                <p class="report-trial-mark">
+                    TRIAL EDITION
+                </p>
+            {% endif %}
+
+            <h1>{{ case.headline }}</h1>
+
+            <p class="report-subtitle">
+                Reporting period:
+                {{ month_label(case.period) }}
+            </p>
+
+        </header>
+
+        <section class="report-section">
+            <h2>Context</h2>
+
+            <p class="preserve-lines">
+                {{ case.context }}
+            </p>
+        </section>
+
+        <section class="report-section">
+            <h2>Approach</h2>
+
+            <p class="preserve-lines">
+                {{ case.approach }}
+            </p>
+        </section>
+
+        <section class="report-section">
+            <h2>Observed outcome</h2>
+
+            <p class="preserve-lines">
+                {{ case.outcome }}
+            </p>
+
+            <div class="report-metrics">
+
+                <div class="report-metric">
+                    <span>
+                        Posts with metrics
+                    </span>
+
+                    <strong>
+                        {% if case.sample_size is not none %}
+                            {{ case.sample_size }}
+                        {% else %}
+                            Not logged
+                        {% endif %}
+                    </strong>
+                </div>
+
+                <div class="report-metric">
+                    <span>
+                        Typical post (median) impressions
+                    </span>
+
+                    <strong>
+                        {% if case.median_post_impressions is none %}
+                            Not logged
+                        {% elif case.median_post_impressions == (case.median_post_impressions|int) %}
+                            {{ case.median_post_impressions|int }}
+                        {% else %}
+                            {# Display only: x.5 rounds half up (488.5 shows as 489). #}
+                            {{ ((case.median_post_impressions + 0.5)|round(0, 'floor'))|int }}
+                        {% endif %}
+                    </strong>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="report-section report-limitations">
+            <h2>About these results</h2>
+
+            <p>
+                {{ case.limitation }}
+            </p>
+
+            <p>
+                These figures describe cumulative performance
+                of individual posts in the reporting evidence.
+                They do not represent total monthly account traffic.
+            </p>
+
+            <p>
+                Differences in observed results do not establish
+                that a particular service caused an improvement
+                or decline.
+            </p>
+
+            {% if draft %}
+                <p>
+                    This is a draft document. Separate consent
+                    is required before public publication.
+                </p>
+            {% endif %}
+        </section>
+
+        <footer class="report-footer">
+            Anonymized case study · {{ month_label(case.period) }}
+        </footer>
+
+    </article>
+
+</body>
+</html>

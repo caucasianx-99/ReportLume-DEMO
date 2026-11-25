@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ heading }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container narrow">
+
+    <article
+      class="workspace-panel app-error-panel"
+      role="main"
+    >
+      <span class="kicker">
+        REQUEST STATUS
+      </span>
+
+      <h1>{{ heading }}</h1>
+
+      <p role="alert">
+        {{ message }}
+      </p>
+
+      {% if billing_link|default(false) %}
+        <p class="muted">
+          This action may require an eligible
+          subscription or active trial.
+          You can review your account status
+          without changing existing reports.
+        </p>
+      {% endif %}
+
+      <div class="report-actions">
+        {% if billing_link|default(false) %}
+          <a
+            class="button primary"
+            href="/dashboard"
+          >
+            Return to dashboard
+          </a>
+        {% endif %}
+
+        {% if request.cookies.get(settings.session_cookie_name) %}
+          <a
+            class="button secondary"
+            href="/dashboard"
+          >
+            Back to dashboard
+          </a>
+        {% else %}
+          <a
+            class="button secondary"
+            href="/login"
+          >
+            Sign in
+          </a>
+        {% endif %}
+
+        <a
+          class="text-link"
+          href="/contact"
+        >
+          Contact support
+        </a>
+      </div>
+
+      <p class="muted">
+        If a request failed while you were editing,
+        review the saved record before submitting it again.
+      </p>
+    </article>
+
+  </div>
+</section>
+{% endblock %}

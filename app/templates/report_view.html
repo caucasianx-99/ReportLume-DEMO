@@ -1,0 +1,140 @@
+
+{% extends "base.html" if owner_back else "report_public_base.html" %}
+{% from "_date_display.html" import month_label %}
+
+{% block title %}
+  {{ snapshot.client.display_name }} · {{ month_label(snapshot.period) }} report
+{% endblock %}
+
+{% block extra_head %}
+  {% if owner_back %}
+    <link rel="stylesheet" href="/static/css/reporting.css">
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+{% set values = review_values|default({}, true) %}
+{% set errors = review_field_errors|default({}, true) %}
+<section class="section">
+  <div class="container report-wrap">
+    <div class="report-toolbar" aria-label="Report actions">
+      {% if owner_back %}
+        <a class="button secondary" href="{{ owner_back }}">Back to workspace</a>
+        <span class="muted">Saved report version · Changes require a new version</span>
+      {% else %}
+        <span class="muted">
+          Private report
+          {% if snapshot.brand %}· Prepared by {{ snapshot.brand }}{% endif %}
+        </span>
+      {% endif %}
+      {% if pdf_url %}
+        <a class="button secondary" href="{{ pdf_url }}" rel="nofollow">Download PDF</a>
+      {% endif %}
+    </div>
+
+    {% include "report_body.html" %}
+
+    {% if review %}
+      <section id="review" class="report-review-panel" aria-labelledby="review-heading">
+        {% if sent %}
+          <h2 id="review-heading">Response received</h2>
+          <p class="review-notice" role="status" tabindex="-1">
+            Thank you. Your response was recorded for this report version.
+          </p>
+          <p>
+            The agency can review your response. This confirmation does not
+            publish the report or permit use as a public testimonial.
+          </p>
+        {% else %}
+          <h2 id="review-heading">Review this report</h2>
+          <p>
+            Approve this version or request changes. Your response is attached
+            to this exact report version, even if the agency saves another one.
+          </p>
+
+          {% if review_form_error|default('') %}
+            <div class="review-notice review-notice-error" role="alert" tabindex="-1">
+              <strong>Response not sent.</strong>
+              {{ review_form_error }}
+            </div>
+          {% endif %}
+
+          <form method="post" action="{{ share_action }}#review" class="report-review-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+            <label for="reviewer_name">Your name <span aria-hidden="true">*</span></label>
+            <input
+              id="reviewer_name"
+              name="reviewer_name"
+              maxlength="80"
+              autocomplete="name"
+              value="{{ values.get('reviewer_name', '') }}"
+              required
+              {% if errors.get('reviewer_name') %}
+                aria-invalid="true"
+                aria-describedby="reviewer-name-error"
+              {% endif %}
+            >
+            {% if errors.get('reviewer_name') %}
+              <p class="review-field-error" id="reviewer-name-error">{{ errors.reviewer_name }}</p>
+            {% endif %}
+
+            <label for="review_comment">Comments</label>
+            <textarea
+              id="review_comment"
+              name="comment"
+              maxlength="2000"
+              rows="5"
+              placeholder="Describe any changes you would like the agency to make."
+              {% if errors.get('comment') %}
+                aria-invalid="true"
+                aria-describedby="review-comment-error"
+              {% endif %}
+            >{{ values.get('comment', '') }}</textarea>
+            {% if errors.get('comment') %}
+              <p class="review-field-error" id="review-comment-error">{{ errors.comment }}</p>
+            {% endif %}
+            <p class="muted">A comment is required when you select Request changes.</p>
+
+            <label class="review-confirm" for="confirm_approval">
+              <input
+                id="confirm_approval"
+                type="checkbox"
+                name="confirm_approval"
+                value="on"
+                {% if values.get('confirm_approval') %}checked{% endif %}
+                {% if errors.get('confirm_approval') %}
+                  aria-invalid="true"
+                  aria-describedby="review-approval-error"
+                {% endif %}
+              >
+              <span>
+                I have reviewed this version and accept it as the monthly
+                client report. This acknowledgement applies only if I select
+                <strong>Approve report</strong>.
+              </span>
+            </label>
+            {% if errors.get('confirm_approval') %}
+              <p class="review-field-error" id="review-approval-error">{{ errors.confirm_approval }}</p>
+            {% endif %}
+
+            <div class="report-actions">
+              <button class="button primary" type="submit" name="action" value="approve">
+                Approve report
+              </button>
+              <button class="button secondary" type="submit" name="action" value="comment">
+                Request changes
+              </button>
+            </div>
+          </form>
+
+          <p class="muted">
+            Report approval is separate from permission to publish a case
+            study, testimonial, or other marketing material.
+          </p>
+        {% endif %}
+      </section>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

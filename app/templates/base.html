@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Reportlume — clear X client reports for ghostwriters and small content teams."
+    >
+
+    <meta
+        name="theme-color"
+        content="#10151F"
+    >
+
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="/static/favicon.svg"
+    >
+
+    {% set marketing_page = request.url.path in ['/', '/sample', '/sample/workspace'] %}
+
+    {% if marketing_page %}
+        <meta property="og:type" content="website">
+
+        <meta
+            property="og:title"
+            content="Reportlume — client reporting, made clear."
+        >
+
+        <meta
+            property="og:description"
+            content="Keep X ghostwriting clients informed with clear, branded monthly reports."
+        >
+
+        <meta
+            property="og:image"
+            content="{{ settings.base_url.rstrip('/') }}/social-card.png"
+        >
+
+        <meta
+            property="og:image:width"
+            content="1200"
+        >
+
+        <meta
+            property="og:image:height"
+            content="630"
+        >
+
+        <meta
+            property="og:url"
+            content="{{ settings.base_url.rstrip('/') }}{{ request.url.path }}"
+        >
+
+        <meta
+            name="twitter:card"
+            content="summary_large_image"
+        >
+
+        <meta
+            name="twitter:title"
+            content="Reportlume — client reporting, made clear."
+        >
+
+        <meta
+            name="twitter:description"
+            content="Professional monthly X client reports, from one workspace."
+        >
+
+        <meta
+            name="twitter:image"
+            content="{{ settings.base_url.rstrip('/') }}/social-card.png"
+        >
+
+    {% else %}
+        <meta
+            name="robots"
+            content="noindex,nofollow"
+        >
+
+        <meta
+            name="referrer"
+            content="no-referrer"
+        >
+    {% endif %}
+
+    <title>
+        {% block title %}
+            Reportlume
+        {% endblock %}
+        | Reportlume
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/styles.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/static/css/theme.css"
+    >
+
+    {% block extra_head %}
+    {% endblock %}
+</head>
+
+<body class="app-dark-shell">
+
+    {# A cookie only suggests navigation; protected routes verify it server-side. #}
+    {% set nav_has_session = signed_in|default(false) or request.cookies.get(settings.session_cookie_name) is not none %}
+
+    <a class="skip-link" href="#main-content">
+        Skip to content
+    </a>
+
+    <header class="site-header">
+        <div class="container topbar">
+            <a
+                class="brand"
+                href="/"
+                aria-label="Reportlume home"
+            >
+                <span
+                    class="brandmark"
+                    aria-hidden="true"
+                >R</span>
+
+                Reportlume
+            </a>
+
+            <nav aria-label="Main navigation">
+                {% if nav_has_session %}
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/clients">Clients</a>
+                    
+                {% else %}
+                    <a href="/#product">Product</a>
+                    
+                    <a href="/sample">Example report</a>
+                {% endif %}
+            </nav>
+
+            {% if nav_has_session %}
+                <a
+                    class="text-link contact-nav"
+                    href="/sample"
+                >
+                    Example report
+                </a>
+
+            {% else %}
+                <a
+                    class="text-link contact-nav"
+                    href="/login"
+                >
+                    Sign in
+                </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main id="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div>
+                <strong>Reportlume</strong>
+
+                <span>
+                    Client reporting, made clear.
+                </span>
+            </div>
+
+            <div class="footer-links">
+                <a href="/privacy">Privacy</a>
+                <a href="/terms">Terms</a>
+                
+                <a href="/security">Security</a>
+                <a href="/acceptable-use">Acceptable use</a>
+                <a href="/contact">Contact</a>
+            </div>
+        </div>
+
+        <div class="container footnote">
+            {% if settings is defined and settings.seller_name %}
+                Operated by {{ settings.seller_name }}{% if settings.seller_country %}, {{ settings.seller_country }}{% endif %}.
+            {% endif %}
+            Independent software; not affiliated with or endorsed by X Corp.
+        </div>
+    </footer>
+</body>
+</html>

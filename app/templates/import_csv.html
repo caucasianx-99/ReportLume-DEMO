@@ -1,0 +1,374 @@
+{% extends "base.html" %}
+{% from "_date_display.html" import date_label, month_label %}
+
+{% block title %}Import X Content CSV{% endblock %}
+
+{% block content %}
+<section class="section dashboard-section">
+  <div class="container narrow">
+
+    <a
+      class="text-link"
+      href="/clients/{{ client.id }}"
+    >
+      Back to {{ client.display_name }}
+    </a>
+
+    <span class="kicker">STEP 1 · MONTHLY WORKFLOW</span>
+    <h1>Import your X Content CSV</h1>
+
+    <p class="muted">
+      Start with an X Analytics Content CSV that you are authorized
+      to use. Review the preview and confirm when the metrics were
+      downloaded. The original CSV file is not retained.
+    </p>
+
+    
+
+    <div class="workspace-panel">
+      <h2>Before you begin</h2>
+
+      <p>
+        X makes Analytics and its CSV export available to accounts on a
+        paid X Premium plan that includes Analytics.
+      </p>
+
+      <p>
+        Export the Content data from the X account's analytics tools
+        and save it as a CSV file. The file must include post IDs,
+        publication dates, post text and available performance metrics.
+      </p>
+
+      <p class="muted">
+        Reportlume does not connect to X or download files on your
+        behalf. Export availability and menu names depend on X's
+        current account and analytics options.
+      </p>
+    </div>
+
+    {% if access_error %}
+      <div class="form-error" role="alert">
+        {{ access_error }}
+        <a href="/dashboard">Return to dashboard</a>.
+      </div>
+    {% else %}
+
+      <div
+        class="workspace-panel"
+        id="csv-import-app"
+        data-client-id="{{ client.id }}"
+      >
+        <h2>1. Select your file</h2>
+
+        <label class="import-label" for="content-csv">
+          X Content CSV · Maximum 10 MiB
+        </label>
+
+        <input
+          id="content-csv"
+          type="file"
+          accept=".csv,text/csv"
+          required
+        >
+
+        <input
+          type="hidden"
+          id="import-csrf"
+          value="{{ csrf_token }}"
+        >
+
+        <button
+          type="button"
+          id="preview-csv"
+          class="button secondary"
+        >
+          Preview CSV
+        </button>
+
+        <p
+          id="import-message"
+          role="status"
+          aria-live="polite"
+        ></p>
+
+        <section id="preview-details" hidden>
+          <h2>2. Review what is included</h2>
+
+          <dl class="import-stats">
+            <div>
+              <dt>Posts &amp; replies</dt>
+              <dd id="preview-count"></dd>
+            </div>
+
+            <div>
+              <dt>Publication dates</dt>
+              <dd id="preview-dates"></dd>
+            </div>
+
+            <div>
+              <dt>Months represented</dt>
+              <dd id="preview-months"></dd>
+            </div>
+
+            <div>
+              <dt>Possible replies</dt>
+              <dd id="preview-replies"></dd>
+            </div>
+
+            <div>
+              <dt>Already imported</dt>
+              <dd id="preview-existing"></dd>
+            </div>
+          </dl>
+
+          <h3>Things to review</h3>
+          <ul id="preview-warnings"></ul>
+
+          <section id="preview-duplicates" hidden>
+            <h3>Posts that appear more than once</h3>
+            <p class="muted">
+              These posts appear in several rows with different values.
+              Choose the row to keep for each post. Nothing is imported
+              until every post has a choice.
+            </p>
+            <div id="duplicate-groups"></div>
+          </section>
+
+          <section id="preview-date-changes" hidden>
+            <h3>Publication dates that changed</h3>
+            <p class="muted">
+              These posts were imported before with another date.
+              Importing moves them to the new date, which can change
+              the month they are reported in. Published reports do not
+              change.
+            </p>
+            <ul id="date-change-list"></ul>
+            <label class="consent-label import-consent">
+              <input type="checkbox" id="date-changes-approved">
+              <span>Use the new publication dates for these posts.</span>
+            </label>
+          </section>
+
+          <section id="preview-content-changes" hidden>
+            <h3>Text or link that changed</h3>
+            <p class="muted">
+              <span id="content-change-count"></span> posts imported before
+              have a different text or link in this file. Importing keeps
+              the newest text and link. Published reports do not change.
+            </p>
+          </section>
+
+          <h3>Example rows from your file</h3>
+          <ul id="preview-sample"></ul>
+
+          <p class="muted">
+            A leading @ is only a suggestion that something may
+            be a reply. You will confirm who wrote each item and
+            whether it is a post or reply in the next step.
+          </p>
+
+          <h2>3. Confirm dates</h2>
+
+          <p>
+            The export range and the date you downloaded the metrics
+            are different. Confirm both before importing.
+          </p>
+
+          <p class="muted">
+            The download date is suggested from your device and is
+            not verified by the CSV. Correct it if necessary.
+            Leave the time empty if you do not know it.
+          </p>
+
+          <p class="muted">
+            For fairer comparisons, posts should have at least seven
+            full days of observation. With date-only information,
+            Reportlume applies an additional one-day safety margin.
+            Downloading after the 8th of the following month is often
+            more suitable, but does not guarantee comparability.
+          </p>
+
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="export-start">
+                Export starts *
+              </label>
+              <input
+                type="date"
+                id="export-start"
+                required
+              >
+            </div>
+
+            <div class="form-field">
+              <label for="export-end">
+                Export ends *
+              </label>
+              <input
+                type="date"
+                id="export-end"
+                required
+              >
+            </div>
+
+            <div class="form-field">
+              <label for="measurement-date">
+                Data as of *
+              </label>
+              <input
+                type="date"
+                id="measurement-date"
+                aria-describedby="measurement-date-hint"
+                required
+              >
+              <small
+                id="measurement-date-hint"
+                class="muted"
+              >
+                Confirm the actual date of your metrics export.
+              </small>
+            </div>
+
+            <div class="form-field">
+              <label for="measurement-time">
+                Export time (optional)
+              </label>
+              <input
+                type="time"
+                id="measurement-time"
+              >
+            </div>
+
+            <div class="form-field full-span">
+              <label for="measurement-zone">
+                Time zone *
+              </label>
+              <input
+                id="measurement-zone"
+                type="text"
+                autocomplete="off"
+                placeholder="Asia/Baku"
+                maxlength="64"
+                required
+              >
+            </div>
+          </div>
+
+          <label class="consent-label import-consent">
+            <input
+              type="checkbox"
+              id="import-approved"
+            >
+            <span>
+              I checked the reporting dates and metrics, and confirm
+              I have permission to process this client's data.
+            </span>
+          </label>
+
+          <button
+            type="button"
+            class="button primary"
+            id="confirm-csv"
+          >
+            Confirm and import
+          </button>
+        </section>
+
+        <section
+          id="import-next-actions"
+          class="workspace-panel"
+          hidden
+          aria-live="polite"
+        >
+          <h2>Import complete</h2>
+          <p>
+            Your data is saved. The next step is to review
+            authorship and post/reply classifications.
+          </p>
+
+          <div class="report-actions">
+            <a
+              class="button primary"
+              href="/clients/{{ client.id }}/posts"
+            >
+              Next: classify content
+            </a>
+
+            <a
+              class="button secondary"
+              href="/clients/{{ client.id }}/import"
+            >
+              Refresh import history
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <script defer src="/static/js/import.js"></script>
+    {% endif %}
+
+    <div class="workspace-panel">
+      <h2>Import history</h2>
+
+      {% if uploads %}
+        <div class="client-list">
+          {% for item in uploads %}
+            <div class="client-row report-archive-row">
+              <div>
+                <strong>
+                  {{ item.get("row_count", 0) }}
+                  posts &amp; replies
+                </strong>
+
+                <span>
+                  {{ date_label(item.get("export_start", "")) }}
+                  –
+                  {{ date_label(item.get("export_end", "")) }}
+                </span>
+
+                <span>
+                  Data as of
+                  {{ date_label(item.get("measurement_date", "")) }}
+                  {% if item.get("measurement_precision") in ("confirmed_minute", "minute") %}
+                    · Time confirmed
+                  {% else %}
+                    · Date only
+                  {% endif %}
+                </span>
+              </div>
+
+              <span class="client-status">
+                {{ item.get("status", "unknown") | capitalize }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">No CSV imports yet.</p>
+      {% endif %}
+
+      <p class="muted">
+        Only completed imports contribute to reports.
+        You can safely retry the same file with the same dates
+        if an upload was interrupted.
+      </p>
+    </div>
+
+    <div class="workspace-panel">
+      <h2>Continue your workflow</h2>
+      <p class="muted">
+        Once an import is complete, confirm who wrote each post
+        and reply before recording your monthly delivery.
+      </p>
+
+      <a
+        class="button secondary"
+        href="/clients/{{ client.id }}/posts"
+      >
+        Continue to classification
+      </a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

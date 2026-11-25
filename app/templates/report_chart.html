@@ -1,0 +1,124 @@
+{#
+  Calendar-aligned publication cadence for HTML and PDF.
+
+  Each calendar day is represented, including days without content.
+  The chart never converts cumulative metrics into daily traffic.
+#}
+
+{% if snapshot.schema_version|default(1) >= 2
+    and snapshot.charts is defined
+    and snapshot.charts.daily_posts
+    and snapshot.window is defined %}
+
+  {% set points = snapshot.charts.daily_posts %}
+  {% set days_in_month = snapshot.window.end[-2:]|int %}
+
+  {% if 28 <= days_in_month <= 31 %}
+    {% set axis = namespace(maximum=1) %}
+
+    {% for point in points %}
+      {% if point.post_count > axis.maximum %}
+        {% set axis.maximum = point.post_count %}
+      {% endif %}
+    {% endfor %}
+
+    <figure class="report-chart">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="report-chart-svg"
+        viewBox="0 0 760 272"
+        role="img"
+        aria-label="Posts and replies published by calendar day"
+      >
+        <title>
+          Publishing activity across the reporting month
+        </title>
+
+        <desc>
+          Every position represents one calendar date.
+          Bar heights show the number of included posts
+          and replies published on that date, not daily impressions.
+        </desc>
+
+        {% for fraction in [0, 0.5, 1] %}
+          {% set y = 203 - fraction * 164 %}
+
+          <line
+            x1="48"
+            y1="{{ y }}"
+            x2="736"
+            y2="{{ y }}"
+            stroke="#dce5e7"
+            stroke-width="1"
+          />
+
+          <text
+            x="42"
+            y="{{ y + 4 }}"
+            text-anchor="end"
+            class="report-chart-tick"
+          >{{ (axis.maximum * fraction)|round(0)|int }}</text>
+        {% endfor %}
+
+        {% set slot = 678 / days_in_month %}
+        {% set bar_width = slot * 0.68 %}
+
+        {% for day in range(1, days_in_month + 1) %}
+          {% set daily = namespace(count=0) %}
+
+          {% for point in points %}
+            {% if (point.published_date[-2:]|int) == day %}
+              {% set daily.count = daily.count + point.post_count %}
+            {% endif %}
+          {% endfor %}
+
+          {% set x = 52 + loop.index0 * slot + (slot - bar_width) / 2 %}
+
+          {% if daily.count > 0 %}
+            {% set bar_height = (daily.count / axis.maximum) * 164 %}
+
+            <rect
+              x="{{ x|round(2) }}"
+              y="{{ (203 - bar_height)|round(2) }}"
+              width="{{ bar_width|round(2) }}"
+              height="{{ bar_height|round(2) }}"
+              rx="2"
+              fill="#168d85"
+            >
+              <title>
+                Day {{ day }}:
+                {{ daily.count }}
+                post{{ '' if daily.count == 1 else 's' }} or replies
+              </title>
+            </rect>
+          {% endif %}
+
+          {% if day in [1, 8, 15, 22, days_in_month] %}
+            <text
+              x="{{ (52 + loop.index0 * slot + slot / 2)|round(2) }}"
+              y="229"
+              text-anchor="middle"
+              class="report-chart-tick"
+            >{{ day }}</text>
+          {% endif %}
+        {% endfor %}
+
+        <text
+          x="390"
+          y="256"
+          text-anchor="middle"
+          class="report-chart-label"
+        >
+          Day of reporting month
+        </text>
+      </svg>
+
+      <figcaption>
+        Included posts and replies were published on
+        {{ points|length }} of {{ days_in_month }}
+        calendar days. Empty dates have no included content.
+        This is a publishing schedule, not daily account traffic.
+      </figcaption>
+    </figure>
+  {% endif %}
+{% endif %}

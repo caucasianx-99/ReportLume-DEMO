@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block title %}Clients{% endblock %}
+
+{% block content %}
+{% set selection_limit = capacity_limit | default(client_limit | default(0)) %}
+{% set selection_count = "three" if selection_limit == 3 else selection_limit %}
+{% set selection_plan = "Solo " if selection_limit == 3 and profile.get("billing_plan") == "solo" else "" %}
+<section class="section dashboard-section">
+  <div class="container">
+    <div class="dashboard-heading">
+      <div>
+        <span class="kicker">CLIENT WORKSPACE</span>
+        <h1>Your clients</h1>
+        <p class="muted">
+          Manage relationships, deliverables and report history.
+        </p>
+      </div>
+
+      {% if can_create %}
+        <a href="/clients/new" class="button primary">
+          Add client
+        </a>
+      {% endif %}
+    </div>
+
+    <div class="workspace-summary">
+      <div class="summary-stat">
+        <span>Active client slots</span>
+        <strong>{{ active_count }} / {{ client_limit }}</strong>
+        <small>Active and paused clients use slots.</small>
+      </div>
+
+      <div class="summary-stat">
+        <span>Current access</span>
+        <strong>
+          {% if paid %}
+            Community workspace
+          {% elif locked %}
+            Read-only
+          {% elif profile.get('trial_started_at') %}
+            Trial
+          {% else %}
+            Ready to begin
+          {% endif %}
+        </strong>
+
+        <small>
+          {% if selection_required %}
+            Editing and publishing are paused until you choose exactly {{ selection_count }} clients.
+          {% elif paid %}
+            Editing and publishing are available.
+          {% elif locked %}
+            Editing is unavailable. Existing reports remain readable.
+          {% elif profile.get('trial_started_at') %}
+            Your 72-hour free trial is in progress.
+          {% else %}
+            Your trial begins after your first confirmed CSV import.
+          {% endif %}
+        </small>
+
+        {% if not paid and not locked
+            and profile.get('trial_report_client_id') %}
+          <small>
+            Your one free-trial monthly report has already been published.
+          </small>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if selection_required %}
+      <div class="notice">
+        Select your {{ selection_count }} {{ selection_plan }}clients below
+        before creating new work. You can still read archived
+        reports and revoke older links.
+      </div>
+    {% elif locked %}
+      <div class="notice">
+        Workspace editing is unavailable.
+        Existing clients and reports remain readable.
+        <a href="/dashboard">Return to dashboard</a>.
+      </div>
+    {% elif not can_create %}
+      <div class="notice">
+        Your available client allowance is in use.
+        Archiving a client does not reset the
+        one-time free allowance.
+      </div>
+    {% endif %}
+
+    {% if selection_saved %}
+      <div class="notice" role="status">
+        Your chosen clients have been retained.
+        Other clients are safely archived; their previous
+        reports and links remain available.
+      </div>
+    {% endif %}
+
+    {% if selection_error %}
+      <div class="form-error" role="alert">
+        {{ selection_error }}
+      </div>
+    {% endif %}
+
+    {% if selection_required %}
+      <section
+        class="workspace-panel"
+        aria-labelledby="capacity-choice-heading"
+      >
+        <h2 id="capacity-choice-heading">
+          Choose your {{ selection_count }} {{ selection_plan }}clients
+        </h2>
+
+        <p>
+          Your verified plan permits {{ capacity_limit }} active
+          or paused clients. Choose exactly {{ capacity_limit }}
+          to retain; others become read-only archives.
+          Reports, feedback, approvals and links are preserved.
+          New reporting remains paused until completion.
+        </p>
+
+        {% if capacity_selection_started %}
+          <p class="notice" role="status">
+            Your client selection was safely saved.
+            Some clients may already be archived.
+            Continue without changing your choices.
+            Large directories may require several confirmations.
+          </p>
+
+          <form method="post" action="/clients/keep-active">
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+            <input type="hidden" name="resume" value="1">
+
+            <button type="submit" class="button primary">
+              Continue safely archiving excess clients
+            </button>
+          </form>
+
+        {% else %}
+          <form
+            method="post"
+            action="/clients/keep-active"
+            class="workspace-form"
+            data-capacity-selection
+            data-limit="{{ capacity_limit }}"
+          >
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+
+            <label for="client-capacity-search">
+              Find a client
+            </label>
+            <input
+              id="client-capacity-search"
+              type="search"
+              placeholder="Search by client name"
+              data-capacity-search
+            >
+
+            <p class="muted">
+              <strong data-capacity-count>0</strong>
+              / {{ capacity_limit }} selected
+            </p>
+
+            <div class="report-actions">
+              <button
+                type="button"
+                class="button secondary"
+                data-capacity-select-visible
+              >
+                Select visible clients (up to capacity)
+              </button>
+
+              <button
+                type="button"
+                class="button secondary"
+                data-capacity-clear-visible
+              >
+                Clear visible selections
+              </button>
+            </div>
+
+            <fieldset>
+              <legend>Clients to keep active</legend>
+
+              {% for client in capacity_candidates %}
+                <label
+                  class="consent-label"
+                  data-capacity-client
+                  data-search-name="{{ client.display_name | lower }}"
+                >
+                  <input
+                    type="checkbox"
+                    name="keep_{{ client.id }}"
+                    value="on"
+                    data-capacity-checkbox
+                  >
+                  <span>
+                    {{ client.display_name }}
+                    — {{ client.status | capitalize }}
+                  </span>
+                </label>
+              {% endfor %}
+            </fieldset>
+
+            <p class="muted">
+              Archived clients can be restored later when
+              a verified client slot is available.
+              Your selection is saved on the server before
+              the first archive batch begins.
+            </p>
+
+            <button
+              type="submit"
+              class="button primary"
+              data-capacity-submit
+            >
+              Keep these {{ selection_count }} clients
+            </button>
+          </form>
+        {% endif %}
+      </section>
+    {% endif %}
+
+    <div class="workspace-panel">
+      <div class="panel-heading">
+        <h2>Client directory</h2>
+      </div>
+
+      <a
+        class="client-row"
+        href="/sample/workspace"
+        aria-label="Explore Northstar Studio example client"
+      >
+        <div>
+          <strong>Northstar Studio — example client</strong>
+          <span>Fictional sample · permanently available</span>
+        </div>
+
+        <div class="client-row-end">
+          <span class="client-status">Demo</span>
+          <span class="client-open">Explore</span>
+        </div>
+      </a>
+
+      <p class="muted">
+        This example uses no client slot, account data,
+        trial time or customer storage.
+      </p>
+
+      {% if clients %}
+        <div class="client-list">
+          {% for client in clients %}
+            <a
+              class="client-row"
+              href="/clients/{{ client.id }}"
+            >
+              <div>
+                <strong>{{ client.display_name }}</strong>
+                <span>
+                  {% if client.x_handle %}
+                    @{{ client.x_handle }}
+                  {% else %}
+                    No X username provided
+                  {% endif %}
+                </span>
+              </div>
+
+              <div class="client-row-end">
+                <span class="client-status {{ client.status }}">
+                  {{ client.status | capitalize }}
+                </span>
+                <span class="client-open">View</span>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <h3>No clients on this page</h3>
+          <p>
+            Add a client to begin organizing your reporting workspace.
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
+    {% if next_url %}
+      <div class="page-navigation">
+        <a class="button secondary" href="{{ next_url }}">
+          Next page
+        </a>
+      </div>
+    {% endif %}
+
+    <p class="muted workspace-footnote">
+      The example client is always read-only and never uses your
+      account limits or trial allowance.
+      {% if not paid and not locked
+          and not profile.get('trial_started_at') %}
+        Your free trial starts with your first confirmed real CSV import.
+      {% endif %}
+    </p>
+  </div>
+</section>
+
+<script defer src="/static/js/client_capacity.js"></script>
+{% endblock %}

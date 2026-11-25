@@ -1,0 +1,41 @@
+{% extends "report_public_base.html" %}
+
+{% block title %}{{ heading }}{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container report-wrap">
+
+    <article class="report-paper report-error">
+      <p class="report-eyebrow">
+        PRIVATE CLIENT ACCESS
+      </p>
+
+      <h1>{{ heading }}</h1>
+
+      <p>{{ message }}</p>
+
+      {% if heading == "Temporarily unavailable"
+          or heading == "Service error" %}
+        <p class="report-explainer">
+          Please try again later.
+          Your report has not been changed by this error.
+        </p>
+
+      {% elif heading == "Please refresh" %}
+        <p class="report-explainer">
+          Reload the page before submitting your response again.
+        </p>
+
+      {% else %}
+        <p class="report-explainer">
+          If you expected to access a client report,
+          contact the person who shared this private link.
+          They can check its availability or provide a new one.
+        </p>
+      {% endif %}
+    </article>
+
+  </div>
+</section>
+{% endblock %}

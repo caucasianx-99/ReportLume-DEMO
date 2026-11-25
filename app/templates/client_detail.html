@@ -1,0 +1,464 @@
+
+{% extends "base.html" %}
+{% from "_date_display.html" import date_label, month_label %}
+
+{% block title %}{{ client.display_name }}{% endblock %}
+
+{% block content %}
+
+<section class="section dashboard-section">
+  <div class="container">
+
+    <!-- Back navigation -->
+    <a href="/clients" class="text-link">
+      Back to clients
+    </a>
+
+    <!-- Client heading -->
+    <div class="dashboard-heading client-detail-heading">
+
+      <div>
+        <span class="kicker">CLIENT PROFILE</span>
+
+        <h1>{{ client.display_name }}</h1>
+
+        <p class="muted">
+          {% if client.x_handle %}
+            @{{ client.x_handle }}
+          {% else %}
+            No X username
+          {% endif %}
+        </p>
+
+        <span class="client-status {{ client.status }}">
+          {{ client.status | capitalize }}
+        </span>
+      </div>
+
+      <!-- Edit client: unavailable for archived clients -->
+      {% if client.status != "archived" %}
+        <a
+          href="/clients/{{ client.id }}/edit"
+          class="button secondary"
+        >
+          Edit client
+        </a>
+      {% endif %}
+
+    </div>
+
+    <!-- Monthly workflow in the same order each month -->
+    <div class="workspace-panel">
+
+      <h2>Monthly reporting workflow</h2>
+
+      <p class="muted">
+        Import your authorized X Content CSV, classify the content,
+        record delivered work, then prepare and share a monthly report.
+      </p>
+
+      <!-- CSV import: active clients only -->
+      {% if client.status == "active" %}
+        <div class="client-import-action">
+          <a
+            class="button primary"
+            href="/clients/{{ client.id }}/import"
+          >
+            Import X Analytics CSV
+          </a>
+        </div>
+      {% endif %}
+
+      <!-- Classification: read-only access remains available -->
+      <div class="client-import-action">
+        <a
+          class="button secondary"
+          href="/clients/{{ client.id }}/posts"
+        >
+          Review &amp; classify posts
+        </a>
+      </div>
+
+      <!-- Proof of Work -->
+      <div class="client-import-action">
+        <a
+          class="button secondary"
+          href="/clients/{{ client.id }}/proof"
+        >
+          Proof of Work
+        </a>
+      </div>
+
+      <!-- Monthly reporting -->
+      <div class="client-import-action">
+        <a
+          class="button secondary"
+          href="/clients/{{ client.id }}/reports"
+        >
+          Monthly reporting &amp; publishing
+        </a>
+      </div>
+
+      <!-- Renewal and performance attention -->
+      <div class="client-import-action">
+        <a
+          class="button secondary"
+          href="/clients/{{ client.id }}/attention"
+        >
+          Renewal &amp; performance attention
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Archived client notice -->
+    {% if client.status == "archived" %}
+      <div class="notice">
+        This client is archived. Its reports, versions and feedback are
+        retained for reading; existing private links continue until they
+        expire or are revoked. New CSV imports, reports and share links
+        are unavailable while the client is archived. You can still
+        revoke an existing private link from its monthly report page.
+        Restoring this client requires an available active-client slot.
+      </div>
+    {% endif %}
+
+    <!-- Client relationship and commitments -->
+    <div class="client-detail-grid">
+
+      <!-- Relationship details -->
+      <div class="workspace-panel">
+
+        <h2>Relationship details</h2>
+
+        <dl class="detail-list">
+
+          <div>
+            <dt>Collaboration started</dt>
+
+            <dd>
+              {{ date_label(client.collaboration_started) }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Contract renewal</dt>
+
+            <dd>
+              {{ date_label(client.renewal_date) }}
+            </dd>
+          </div>
+
+          <div>
+            <dt>Data authorization</dt>
+
+            <dd>
+              {% if client.get("authorization_asserted_at") %}
+                Owner-declared on
+                {{ date_label(client.get("authorization_asserted_at")) }}
+              {% else %}
+                Not recorded
+              {% endif %}
+            </dd>
+          </div>
+
+        </dl>
+      </div>
+
+      <!-- Monthly commitments -->
+      <div class="workspace-panel">
+
+        <h2>Monthly commitments</h2>
+
+        <div class="commitment-grid">
+
+          <div>
+            <strong>
+              {{ client.get("monthly_posts", 0) }}
+            </strong>
+
+            <span>Posts</span>
+          </div>
+
+          <div>
+            <strong>
+              {{ client.get("monthly_threads", 0) }}
+            </strong>
+
+            <span>Threads</span>
+          </div>
+
+          <div>
+            <strong>
+              {{ client.get("monthly_replies", 0) }}
+            </strong>
+
+            <span>Replies</span>
+          </div>
+
+          <div>
+            <strong>
+              {{ client.get("monthly_strategy_calls", 0) }}
+            </strong>
+
+            <span>Strategy calls</span>
+          </div>
+
+        </div>
+
+        <p class="muted">
+          These are planned deliverables.
+          Actual delivery is recorded separately
+          in Proof of Work.
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- Goals and private notes -->
+    <div class="workspace-panel">
+
+      <h2>Goals and internal notes</h2>
+
+      <dl class="detail-list">
+
+        <div>
+          <dt>Post impressions target</dt>
+
+          <dd>
+            {% if client.get("post_impressions_goal") is not none %}
+              {{ client.post_impressions_goal }}
+            {% else %}
+              Not set
+            {% endif %}
+          </dd>
+        </div>
+
+        <div>
+          <dt>Goal description</dt>
+
+          <dd class="preserve-lines">{{ client.get("goal_notes") or "No goal notes." }}</dd>
+        </div>
+
+        <div>
+          <dt>Private internal notes</dt>
+
+          <dd class="preserve-lines">{{ client.get("notes") or "No internal notes." }}</dd>
+        </div>
+
+      </dl>
+
+      <p class="muted">
+        Private notes are visible only in the owner workspace.
+        They are not part of a published client report.
+      </p>
+
+    </div>
+
+    <!-- Monthly report archive -->
+    <div class="workspace-panel">
+
+      <div class="panel-heading">
+        <h2>Monthly report archive</h2>
+
+        <span class="pill">
+          Saved history
+        </span>
+      </div>
+
+      {% if reports %}
+
+        <div class="client-list">
+
+          {% for report in reports %}
+
+            <div class="client-row report-archive-row">
+
+              <div>
+                <strong>
+                  <a
+                    href="/clients/{{ client.id }}/reports/{{ report.get('period', report.id) }}"
+                  >
+                    {{ month_label(report.get("period", report.id)) }}
+                  </a>
+                </strong>
+
+                <span>
+                  Reporting status:
+                  {{ report.get("status", "Unknown") }}
+                </span>
+              </div>
+
+              <div>
+                <span class="client-status">
+                  {{ report.get("status", "Unknown") }}
+                </span>
+              </div>
+
+            </div>
+
+          {% endfor %}
+
+        </div>
+
+        {% if has_more_reports %}
+          <p class="muted">
+            Additional reports are available beyond the first page.
+            Open a monthly report to review its saved versions.
+          </p>
+        {% endif %}
+
+      {% else %}
+
+        <div class="empty-state">
+
+          <h3>No report history yet</h3>
+
+          <p>
+            Saved monthly reports will appear here after you
+            create and publish a report.
+          </p>
+
+        </div>
+
+      {% endif %}
+
+    </div>
+
+    <!-- Client status management -->
+    <div class="workspace-panel">
+
+      <h2>Client status</h2>
+
+      <p class="muted">
+        Paused clients retain their records and count
+        toward the active client quota.
+
+        Archived clients become read-only and release
+        a client slot, but do not reset the one-time
+        free client allowance.
+      </p>
+
+      <div class="status-actions">
+
+        <!-- Active client: pause -->
+        {% if client.status == "active" %}
+
+          <form
+            method="post"
+            action="/clients/{{ client.id }}/status"
+          >
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+
+            <input
+              type="hidden"
+              name="status"
+              value="paused"
+            >
+
+            <button
+              class="button secondary"
+              type="submit"
+            >
+              Pause client
+            </button>
+          </form>
+
+        <!-- Paused client: resume -->
+        {% elif client.status == "paused" %}
+
+          <form
+            method="post"
+            action="/clients/{{ client.id }}/status"
+          >
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+
+            <input
+              type="hidden"
+              name="status"
+              value="active"
+            >
+
+            <button
+              class="button secondary"
+              type="submit"
+            >
+              Resume client
+            </button>
+          </form>
+
+        {% endif %}
+
+        <!-- Archive active or paused client -->
+        {% if client.status != "archived" %}
+
+          <form
+            method="post"
+            action="/clients/{{ client.id }}/status"
+          >
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+
+            <input
+              type="hidden"
+              name="status"
+              value="archived"
+            >
+
+            <button
+              class="button danger-button"
+              type="submit"
+            >
+              Archive client
+            </button>
+          </form>
+
+        <!-- Restore archived client -->
+        {% else %}
+
+          <form
+            method="post"
+            action="/clients/{{ client.id }}/status"
+          >
+            <input
+              type="hidden"
+              name="csrf_token"
+              value="{{ csrf_token }}"
+            >
+
+            <input
+              type="hidden"
+              name="status"
+              value="active"
+            >
+
+            <button
+              class="button secondary"
+              type="submit"
+            >
+              Restore client
+            </button>
+          </form>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

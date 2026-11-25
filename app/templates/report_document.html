@@ -1,0 +1,48 @@
+{% from "_date_display.html" import month_label %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <title>
+    {{ snapshot.client.display_name|default("Client") }}
+    — {{ month_label(snapshot.period) }} report
+  </title>
+
+  <meta
+    name="referrer"
+    content="no-referrer"
+  >
+
+  <style>
+    html,
+    body {
+      font-family: "DejaVu Sans", sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    .report-chart,
+    .report-chart-svg {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+  </style>
+</head>
+
+<body class="pdf-body">
+  {% include "report_body.html" %}
+</body>
+</html>

@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% from "_date_display.html" import date_label, month_label, datetime_label %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<section class="section dashboard-section p2-dashboard">
+  <div class="container">
+    <div class="dashboard-heading">
+      <div>
+        <span class="kicker">YOUR WORKSPACE</span>
+        <h1>Client reporting dashboard</h1>
+        <p class="muted">
+          Signed in as {{ profile.email }}
+        </p>
+      </div>
+
+      <form method="post" action="/logout">
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+        <button type="submit" class="button secondary">
+          Sign out
+        </button>
+      </form>
+    </div>
+
+    <section
+      class="dashboard-access"
+      aria-label="Workspace access"
+    >
+      <div>
+        <span class="small-label">ACCOUNT ACCESS</span>
+        <h2>{{ overview.access.label }}</h2>
+
+        {% if overview.access.paid and overview.access.plan %}
+          <p class="muted">
+            {{ overview.access.plan | capitalize }} workspace ·
+            {{ overview.access.active_limit }} active client slots
+            {% if overview.access.case_limit is none %}
+              · Unlimited published case studies
+            {% else %}
+              · {{ overview.access.case_limit }} published case study
+            {% endif %}
+          </p>
+        {% endif %}
+
+        <p>{{ overview.access.description }}</p>
+
+        {% if overview.access.client_selection_required|default(false) %}
+          <div class="notice" role="status">
+            Creating and publishing new reports is temporarily paused.
+            No clients or reports have been deleted.
+            Choose exactly {{ "three" if overview.access.active_limit == 3 else overview.access.active_limit }} clients.
+            <a href="/clients">Open client directory</a>
+            to continue.
+          </div>
+        {% endif %}
+
+        {% if overview.access.trial_ends_at %}
+          <p class="muted">
+            Trial ends:
+            <strong>
+              {{ datetime_label(overview.access.trial_ends_at) }}
+            </strong>
+
+            {% if overview.access.trial_remaining_hours is not none %}
+              · Approximately
+              {{ overview.access.trial_remaining_hours }}
+              {% if overview.access.trial_remaining_hours == 1 %}
+                hour
+              {% else %}
+                hours
+              {% endif %}
+              remaining
+            {% endif %}
+          </p>
+        {% endif %}
+
+        {% if overview.access.label == "Ready to begin" %}
+          <p class="muted">
+            You can prepare your first client before starting the trial.
+            The 72-hour period starts with the first confirmed
+            real X Content CSV import.
+          </p>
+        {% elif overview.access.label == "Trial" %}
+          <p class="muted">
+            Your free trial includes one client and one published
+            monthly report. A report can have multiple saved versions.
+            Changing plans does not restart the trial.
+          </p>
+        {% elif overview.access.label == "Read-only" %}
+          <p class="muted">
+            Existing client data and reports remain available to read.
+            Review billing before attempting changes.
+          </p>
+        {% endif %}
+      </div>
+
+      
+    </section>
+
+    <div
+      class="dashboard-pulse"
+      aria-label="Workspace overview"
+    >
+      <article class="dashboard-pulse-card">
+        <span>Active client slots</span>
+        <strong>{{ overview.active_count }}</strong>
+        <small>
+          Up to {{ overview.access.active_limit }}
+          permitted by current access
+        </small>
+      </article>
+
+      <article class="dashboard-pulse-card">
+        <span>Active clients found</span>
+        <strong>{{ overview.visible_active_count }}</strong>
+        <small>
+          Clients currently shown in this overview
+        </small>
+      </article>
+
+      <article class="dashboard-pulse-card">
+        <span>Items to review</span>
+        <strong>{{ overview.needs_attention }}</strong>
+        <small>
+          Based on available reporting and renewal information
+        </small>
+      </article>
+    </div>
+
+    {% if overview.listing_truncated %}
+      <div class="notice" role="status">
+        This dashboard shows a limited overview.
+        Some client records may not be included here.
+        <a href="/clients">Open the client directory</a>
+        for additional records.
+      </div>
+    {% endif %}
+
+    <section
+      class="workspace-panel dashboard-clients"
+      aria-labelledby="dashboard-clients-heading"
+    >
+      <div class="dashboard-section-header">
+        <div>
+          <span class="kicker">MONTHLY REPORTING</span>
+          <h2 id="dashboard-clients-heading">
+            Your client roster
+          </h2>
+
+          <p class="muted">
+            Reporting reminders are based on saved records.
+            They are not live X analytics alerts.
+          </p>
+
+          {% if overview.access.client_selection_required|default(false) %}
+            <p class="notice" role="status">
+              Your verified plan has fewer active client slots
+              than your current roster. New work is paused until
+              you
+              <a href="/clients">choose exactly {{ "three" if overview.access.active_limit == 3 else overview.access.active_limit }} clients</a>.
+            </p>
+          {% endif %}
+        </div>
+
+        <a class="button primary" href="/clients">
+          Manage clients
+        </a>
+      </div>
+
+      {% if overview.clients %}
+        <div class="dashboard-table-scroll">
+          <table class="dashboard-client-table">
+            <thead>
+              <tr>
+                <th scope="col">Client</th>
+                <th scope="col">Last report</th>
+                <th scope="col">Contract renewal</th>
+                <th scope="col">Next check</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for client in overview.clients %}
+                <tr>
+                  <td>
+                    <strong>{{ client.display_name }}</strong>
+
+                    {% if client.x_handle %}
+                      <small>@{{ client.x_handle }}</small>
+                    {% endif %}
+                  </td>
+
+                  <td>
+                    {{ month_label(client.last_publish_label) }}
+                  </td>
+
+                  <td>
+                    {{ date_label(client.renewal_date) }}
+
+                    {% if client.renewal_days is not none
+                        and client.renewal_days <= 14 %}
+                      <small>Review renewal</small>
+                    {% endif %}
+                  </td>
+
+                  <td>{{ client.status_label }}</td>
+
+                  <td>
+                    <a href="/clients/{{ client.id }}/reports">
+                      Open reports
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="dashboard-empty">
+          <h3>No active clients in this overview</h3>
+          <p>
+            Add your first client, or explore the example
+            before working with real X analytics exports.
+          </p>
+
+          <div class="report-actions">
+            <a class="button primary" href="/clients">
+              Open clients
+            </a>
+            <a class="button secondary" href="/sample/workspace">
+              Explore example
+            </a>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+    <section
+      class="workspace-panel"
+      aria-labelledby="dashboard-next-step"
+    >
+      <h2 id="dashboard-next-step">
+        Your monthly workflow
+      </h2>
+
+      <p class="muted">
+        Start with your authorized X Content CSV,
+        check authorship and content types,
+        record delivered work and prepare a branded report.
+      </p>
+
+      <div class="dashboard-grid">
+        <article class="feature">
+          <span class="feature-index">01</span>
+          <h3>Classify content</h3>
+          <p>
+            Confirm the author and type of imported X content
+            before preparing the report.
+          </p>
+          <a
+            class="text-link"
+            href="{% if overview.clients %}/clients/{{ overview.clients[0].id }}/posts{% else %}/clients{% endif %}"
+          >
+            {{ "Open classification" if overview.clients else "Choose a client" }}
+          </a>
+        </article>
+
+        <article class="feature">
+          <span class="feature-index">02</span>
+          <h3>Show delivered work</h3>
+          <p>
+            Compare commitments with recorded delivery
+            before preparing the monthly report.
+          </p>
+          <a
+            class="text-link"
+            href="{% if overview.clients %}/clients/{{ overview.clients[0].id }}/proof{% else %}/clients{% endif %}"
+          >
+            {{ "Open Proof of Work" if overview.clients else "Choose a client" }}
+          </a>
+        </article>
+
+        <article class="feature">
+          <span class="feature-index">03</span>
+          <h3>Publish and share</h3>
+          <p>
+            Review a saved version, publish it and create
+            a private PDF or client review link.
+          </p>
+          <a
+            class="text-link"
+            href="{% if overview.clients %}/clients/{{ overview.clients[0].id }}/reports{% else %}/clients{% endif %}"
+          >
+            {{ "Open monthly reports" if overview.clients else "Choose a client" }}
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <div class="dashboard-grid">
+      <article class="feature">
+        <h3>Agency branding</h3>
+        <p>
+          Configure your agency name, logo and color palette
+          for newly saved reports, where your plan permits.
+        </p>
+        <a class="text-link" href="/settings/brand">
+          Manage branding
+        </a>
+      </article>
+
+      <article class="feature">
+        <h3>Data &amp; privacy</h3>
+        <p>
+          Review client data exports, storage controls
+          and deletion availability.
+        </p>
+        <a class="text-link" href="/settings/data">
+          Data settings
+        </a>
+      </article>
+
+      <article class="feature">
+        <h3>Example report</h3>
+        <p>
+          Explore a fictional reporting workflow without
+          using your client allowance or starting a trial.
+        </p>
+        <a class="text-link" href="/sample/workspace">
+          Explore example
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+{% endblock %}

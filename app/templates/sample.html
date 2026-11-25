@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Synthetic client report
+{% endblock %}
+
+{% block extra_head %}
+    <link
+        rel="stylesheet"
+        href="/static/css/reporting.css"
+    >
+{% endblock %}
+
+{% block content %}
+<section class="section sample-section">
+    <div class="container report-wrap">
+
+        <div
+            class="notice sample-notice"
+            role="status"
+        >
+            <strong>
+                SYNTHETIC SAMPLE — NOT REAL CLIENT DATA.
+            </strong>
+
+            Every client name, post and metric is fictional.
+
+            This demonstration is always read-only
+            and does not consume trial time or client quota.
+        </div>
+
+        <div class="report-toolbar">
+            <a
+                class="button secondary"
+                href="/sample/workspace"
+            >
+                Explore the sample workflow
+            </a>
+
+            <a
+                class="text-link"
+                href="/signup"
+            >
+                Create an account
+            </a>
+        </div>
+
+        {#
+            Same customer report renderer
+            as published V2 snapshots.
+        #}
+
+        {% set snapshot = demo.snapshot %}
+
+        {% include "report_body.html" %}
+
+        <p class="muted sample-followup">
+            This example uses the same report presentation as
+            a real client report, with entirely invented source data.
+            You can explore it without an account or a trial.
+        </p>
+
+    </div>
+</section>
+{% endblock %}

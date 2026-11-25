@@ -1,0 +1,216 @@
+{% extends "report_public_base.html" %}
+
+{% block title %}
+  Case study consent review
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container report-wrap">
+
+    <header class="report-heading">
+      <p class="report-eyebrow">
+        SEPARATE MARKETING PERMISSION
+      </p>
+
+      <h1>Review a case study draft</h1>
+
+      <p class="report-explainer">
+        Review the exact draft below before deciding
+        whether it may be published.
+      </p>
+    </header>
+
+    {% if saved %}
+      <p class="review-notice" role="status">
+        Your response has been recorded.
+        The identity and authority of a person
+        using this link are not independently verified.
+      </p>
+    {% endif %}
+
+    <article class="report-paper">
+      <header class="report-heading">
+        <p class="report-eyebrow">
+          DRAFT FOR YOUR REVIEW
+        </p>
+
+        <h2>{{ case.headline }}</h2>
+      </header>
+
+      <section class="report-section">
+        <h3>Context</h3>
+
+        <p class="preserve-lines">
+          {{ case.context }}
+        </p>
+      </section>
+
+      <section class="report-section">
+        <h3>Approach</h3>
+
+        <p class="preserve-lines">
+          {{ case.approach }}
+        </p>
+      </section>
+
+      <section class="report-section">
+        <h3>Observed outcome</h3>
+
+        <p class="preserve-lines">
+          {{ case.outcome }}
+        </p>
+
+        <div class="report-metrics">
+          <div class="report-metric">
+            <span>Posts with metrics</span>
+
+            <strong>
+              {{ case.sample_size if case.sample_size is not none else "Not logged" }}
+            </strong>
+          </div>
+
+          <div class="report-metric">
+            <span>Median post impressions</span>
+
+            <strong>
+              {% if case.median_post_impressions is none %}
+                Not logged
+              {% else %}
+                {# Display only: x.5 rounds half up (488.5 shows as 489). #}
+                {{ ((case.median_post_impressions + 0.5)|round(0, 'floor'))|int }}
+              {% endif %}
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="report-section report-limitations">
+        <h3>About the evidence</h3>
+
+        <p>{{ case.limitation }}</p>
+
+        <p>
+          These observations describe cumulative performance
+          of individual posts. They do not establish that
+          a particular service caused a change in performance.
+        </p>
+      </section>
+    </article>
+
+    <section
+      class="report-review-panel"
+      aria-labelledby="marketing-consent-heading"
+    >
+      <h2 id="marketing-consent-heading">
+        Your marketing consent decision
+      </h2>
+
+      <p>
+        Approval of a private monthly report does not
+        authorize publication of a case study.
+        The permission requested here applies only
+        to the exact draft shown above.
+      </p>
+
+      <form
+        method="post"
+        action="{{ respond_url }}"
+        class="report-review-form"
+      >
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <label for="consent-actor">
+          Your name
+        </label>
+
+        <input
+          id="consent-actor"
+          name="consent_actor"
+          maxlength="80"
+          autocomplete="name"
+          required
+        >
+
+        <label class="review-confirm">
+          <input
+            type="checkbox"
+            name="authorized"
+            value="on"
+            required
+          >
+
+          <span>
+            I confirm that I am authorized to decide
+            whether this case study may be published
+            for marketing purposes.
+          </span>
+        </label>
+
+        <label class="review-confirm">
+          <input
+            type="checkbox"
+            name="case_consent"
+            value="on"
+            required
+          >
+
+          <span>
+            I explicitly permit publication of this exact
+            anonymized draft for public marketing.
+          </span>
+        </label>
+
+        <button
+          class="button primary"
+          type="submit"
+          name="action"
+          value="consent"
+        >
+          Grant marketing consent
+        </button>
+      </form>
+
+      <div class="report-actions">
+        <form
+          method="post"
+          action="{{ respond_url }}"
+        >
+          <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+          >
+
+          <button
+            class="button secondary"
+            type="submit"
+            name="action"
+            value="withdraw"
+          >
+            Withdraw consent
+          </button>
+        </form>
+      </div>
+
+      <p class="report-explainer">
+        Withdrawing consent removes the stored consent
+        for this draft and returns its publication status
+        to draft.
+      </p>
+
+      <p class="report-explainer">
+        Possession of this link does not independently
+        verify a person's identity or legal authority.
+        If the draft contains identifying or inaccurate
+        details, contact the reporting agency before consenting.
+      </p>
+    </section>
+
+  </div>
+</section>
+{% endblock %}

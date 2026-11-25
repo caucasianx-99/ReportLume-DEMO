@@ -1,0 +1,539 @@
+
+{% extends "base.html" %}
+{% from "_date_display.html" import date_label, month_label %}
+
+{% block title %}Proof of Work{% endblock %}
+
+{% block content %}
+
+<section class="section dashboard-section">
+  <div class="container">
+
+    <a
+      href="/clients/{{ client.id }}"
+      class="text-link"
+    >
+      Back to {{ client.display_name }}
+    </a>
+
+    <div class="proof-heading">
+      <span class="kicker">MONTHLY DELIVERY</span>
+
+      <h1>Proof of Work</h1>
+
+      <p class="muted">
+        {{ client.display_name }} — monthly delivery evidence
+        and descriptive performance comparisons.
+      </p>
+    </div>
+
+    {% if saved|default(false) %}
+      <div
+        class="notice"
+        role="status"
+        aria-live="polite"
+      >
+        Delivery records saved for {{ month_label(proof.period) }}.
+
+        <a href="/clients/{{ client.id }}/reports/{{ proof.period }}">
+          Next: Prepare report
+        </a>
+      </div>
+    {% endif %}
+
+    <div class="workspace-panel">
+
+      <form
+        method="get"
+        action="/clients/{{ client.id }}/proof"
+        class="proof-period-form"
+      >
+        <div class="form-field">
+
+          <label for="period-selector">
+            Reporting month
+          </label>
+
+          <input
+            id="period-selector"
+            type="month"
+            name="period"
+            value="{{ proof.period }}"
+            required
+          >
+        </div>
+
+        <button
+          class="button secondary"
+          type="submit"
+        >
+          View period
+        </button>
+      </form>
+
+    </div>
+
+    <div class="proof-summary-grid">
+
+      <div class="summary-stat">
+        <span>
+          Imported posts with completed sources
+        </span>
+
+        <strong>
+          {{ proof.eligible_post_count }}
+        </strong>
+
+        <small>
+          Observed records for this publication month.
+          Not guaranteed to represent every account post.
+        </small>
+      </div>
+
+      <div class="summary-stat">
+        <span>
+          Posts with Unknown authorship or type
+        </span>
+
+        <strong>
+          {{ proof.unknown_count }}
+        </strong>
+
+        <small>
+          These records are not automatically assigned
+          to Ghostwriter or Client.
+        </small>
+      </div>
+
+    </div>
+
+    <div class="workspace-panel">
+      <h2>Committed vs recorded delivery</h2>
+
+      <p class="muted">
+        Posts and replies are counted from completed imports
+        using your recorded classifications. Threads and
+        strategy calls are entered by the agency.
+      </p>
+
+      <div class="proof-table-wrap">
+        <table class="proof-table">
+
+          <thead>
+            <tr>
+              <th scope="col">Deliverable</th>
+              <th scope="col">Committed</th>
+              <th scope="col">Recorded</th>
+              <th scope="col">Source</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for item in proof.deliverables %}
+              <tr>
+                <th scope="row">
+                  {{ item.name }}
+                </th>
+
+                <td>
+                  {% if item.committed is not none %}
+                    {{ item.committed }}
+                  {% else %}
+                    Not set
+                  {% endif %}
+                </td>
+
+                <td>
+                  {% if item.delivered is not none %}
+                    {{ item.delivered }}
+                  {% else %}
+                    Not logged
+                  {% endif %}
+                </td>
+
+                <td class="proof-source">
+                  {% if item.source == "ghostwriter_input" %}
+                    Entered by the agency
+
+                  {% elif item.source == "computed (x_analytics + ghostwriter_input)" %}
+                    Counted from imported X content using
+                    agency-entered labels
+
+                  {% else %}
+                    {{ item.source }}
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+
+      <p class="proof-caution">
+        These figures do not independently prove that
+        all contracted work was completed. Unclassified
+        posts and missing exports may affect coverage.
+      </p>
+    </div>
+
+    <div class="workspace-panel">
+
+      <h2>Manually declared deliverables</h2>
+
+      <p class="muted">
+        Thread structure and strategy calls cannot be
+        reliably reconstructed from X Content CSV alone.
+        Enter only work you can substantiate.
+      </p>
+
+      {% if editable %}
+
+        <form
+          method="post"
+          action="/clients/{{ client.id }}/proof"
+          class="workspace-form"
+        >
+
+          <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+          >
+
+          <input
+            type="hidden"
+            name="period"
+            value="{{ proof.period }}"
+          >
+
+          <input
+            type="hidden"
+            name="expected_version"
+            value="{{ version }}"
+          >
+
+          <div class="form-grid">
+
+            <div class="form-field">
+              <label for="completed_threads">
+                Completed threads
+              </label>
+
+              <input
+                type="number"
+                id="completed_threads"
+                name="completed_threads"
+                min="0"
+                max="100000"
+                placeholder="Not logged"
+                value="{{ manual.completed_threads if manual.completed_threads is not none else '' }}"
+              >
+            </div>
+
+            <div class="form-field">
+              <label for="completed_strategy_calls">
+                Completed strategy calls
+              </label>
+
+              <input
+                type="number"
+                id="completed_strategy_calls"
+                name="completed_strategy_calls"
+                min="0"
+                max="100000"
+                placeholder="Not logged"
+                value="{{ manual.completed_strategy_calls if manual.completed_strategy_calls is not none else '' }}"
+              >
+            </div>
+
+            <div class="form-field full-span">
+              <label for="delivery_notes">
+                Internal delivery evidence notes
+              </label>
+
+              <textarea
+                id="delivery_notes"
+                name="delivery_notes"
+                maxlength="1000"
+                rows="4"
+                placeholder="Document how the delivered work was verified."
+              >{{ manual.delivery_notes }}</textarea>
+
+              <small>
+                These are private workspace notes.
+                They are not automatically published
+                in a customer report.
+              </small>
+            </div>
+
+          </div>
+
+          <div class="form-actions">
+            <button
+              class="button primary"
+              type="submit"
+            >
+              Save delivery records
+            </button>
+          </div>
+
+        </form>
+
+      {% else %}
+
+        <div class="notice">
+          Delivery records are read-only for this client
+          or subscription state.
+        </div>
+
+        <p>
+          Completed threads:
+
+          <strong>
+            {{ manual.completed_threads if manual.completed_threads is not none else "Not logged" }}
+          </strong>
+        </p>
+
+        <p>
+          Completed strategy calls:
+
+          <strong>
+            {{ manual.completed_strategy_calls if manual.completed_strategy_calls is not none else "Not logged" }}
+          </strong>
+        </p>
+
+        <p class="preserve-lines">{{ manual.delivery_notes or "No delivery notes recorded." }}</p>
+
+      {% endif %}
+
+    </div>
+
+    <div class="workspace-panel">
+
+      <h2>Ghostwriter vs Client</h2>
+
+      <p class="muted">
+        Only explicitly classified Posts are evaluated.
+        Replies, Other and Unknown are excluded from
+        this particular comparison.
+      </p>
+
+      <div class="proof-comparison-counts">
+
+        <div class="summary-stat">
+          <span>
+            Ghostwriter Posts
+          </span>
+
+          <strong>
+            {{ proof.comparison.n.Ghostwriter }}
+          </strong>
+
+          <small>
+            Explicit authorship labels
+          </small>
+        </div>
+
+        <div class="summary-stat">
+          <span>
+            Client Posts
+          </span>
+
+          <strong>
+            {{ proof.comparison.n.Client }}
+          </strong>
+
+          <small>
+            Explicit authorship labels
+          </small>
+        </div>
+
+      </div>
+
+      {% if proof.comparison.status == "descriptive_only" %}
+
+        <div class="notice">
+          Descriptive comparison only.
+          These figures do not establish that
+          the writer caused a performance difference.
+        </div>
+
+        <p class="muted">
+          Shared measurement date:
+          {{ date_label(proof.comparison.measurement_date) }}
+        </p>
+
+        <div class="proof-table-wrap">
+          <table class="proof-table">
+
+            <thead>
+              <tr>
+                <th scope="col">Metric</th>
+                <th scope="col">Ghostwriter</th>
+                <th scope="col">Client</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <th scope="row">
+                  Sample size
+                </th>
+
+                <td>
+                  {{ proof.comparison.groups.Ghostwriter.n }}
+                </td>
+
+                <td>
+                  {{ proof.comparison.groups.Client.n }}
+                </td>
+              </tr>
+
+              <tr>
+                <th scope="row">
+                  Median post impressions
+                </th>
+
+                <td>
+                  {{ proof.comparison.groups.Ghostwriter.median_impressions }}
+                </td>
+
+                <td>
+                  {{ proof.comparison.groups.Client.median_impressions }}
+                </td>
+              </tr>
+
+              <tr>
+                <th scope="row">
+                  Mean post impressions
+                </th>
+
+                <td>
+                  {{ proof.comparison.groups.Ghostwriter.mean_impressions }}
+                </td>
+
+                <td>
+                  {{ proof.comparison.groups.Client.mean_impressions }}
+                </td>
+              </tr>
+
+              <tr>
+                <th scope="row">
+                  Median post engagements
+                </th>
+
+                <td>
+                  {{ proof.comparison.groups.Ghostwriter.median_engagements }}
+                </td>
+
+                <td>
+                  {{ proof.comparison.groups.Client.median_engagements }}
+                </td>
+              </tr>
+
+              <tr>
+                <th scope="row">
+                  Mean post engagements
+                </th>
+
+                <td>
+                  {{ proof.comparison.groups.Ghostwriter.mean_engagements }}
+                </td>
+
+                <td>
+                  {{ proof.comparison.groups.Client.mean_engagements }}
+                </td>
+              </tr>
+
+              <tr>
+                <th scope="row">
+                  Median observation age (days)
+                </th>
+
+                <td>
+                  {{ proof.comparison.groups.Ghostwriter.median_age_days }}
+                </td>
+
+                <td>
+                  {{ proof.comparison.groups.Client.median_age_days }}
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <p class="proof-caution">
+          Values are cumulative post-attributed metrics
+          observed at a confirmed snapshot.
+          They are not monthly account totals.
+          Differences may reflect other factors,
+          including audience, content and timing.
+        </p>
+
+      {% else %}
+
+        <div class="proof-unavailable">
+          <strong>Not comparable</strong>
+
+          <p>
+            {{ proof.comparison.reason }}
+          </p>
+
+          <p class="muted">
+            No relative performance percentage or
+            causal conclusion will be generated.
+          </p>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+    <div class="workspace-panel">
+      <h2>About these numbers</h2>
+
+      <p class="muted">
+        X Analytics values are observations of individual
+        posts at an export measurement point. A post's
+        cumulative impressions cannot automatically be
+        attributed to its publication calendar month.
+      </p>
+
+      <p class="muted">
+        Missing values remain missing. Unknown labels
+        are not treated as Client-written content.
+        Manually entered delivery numbers are explicitly
+        declared, not independently verified.
+      </p>
+
+      <a
+        href="/clients/{{ client.id }}/posts?period={{ proof.period }}"
+        class="text-link"
+      >
+        Review classifications
+      </a>
+    </div>
+
+    <div class="workspace-panel">
+      <h2>Next step: Prepare report</h2>
+
+      <p class="muted">
+        Once delivery records are saved,
+        prepare the report for this month.
+      </p>
+
+      <a
+        class="button primary"
+        href="/clients/{{ client.id }}/reports/{{ proof.period }}"
+      >
+        Next: Prepare report
+      </a>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% from "_date_display.html" import date_label, month_label %}
+
+{% block title %}Preview client report{% endblock %}
+
+{% block extra_head %}
+  <link
+    rel="stylesheet"
+    href="/static/css/reporting.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="/static/css/report_workspace.css"
+  >
+{% endblock %}
+
+{% block content %}
+<section class="section dashboard-section">
+  <div class="container report-wrap">
+
+    <form
+      method="post"
+      action="/clients/{{ client_id }}/reports/{{ period }}/preview/return"
+      class="report-actions"
+    >
+      <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token }}"
+      >
+
+      <input
+        type="hidden"
+        name="brand"
+        value="{{ notes.brand }}"
+      >
+
+      <textarea name="executive_summary" hidden>{{ notes.executive_summary }}</textarea>
+      <textarea name="next_month_plan" hidden>{{ notes.next_month_plan }}</textarea>
+      <textarea name="client_message" hidden>{{ notes.client_message }}</textarea>
+
+      <button
+        type="submit"
+        class="button secondary"
+      >
+        Back to editing
+      </button>
+    </form>
+
+    <section class="workspace-panel report-preview-banner">
+      <p class="kicker">PRIVATE PREVIEW</p>
+
+      <h1>Review your client report</h1>
+
+      <p>
+        Nothing has been published or shared from this preview.
+        Your draft has not been saved or sent to your client.
+        Confirm that the writing, classifications, metrics and
+        supporting evidence are accurate before saving.
+      </p>
+
+      <form
+        method="post"
+        action="/clients/{{ client_id }}/reports/{{ period }}/action"
+        class="report-preview-save-form"
+      >
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <input
+          type="hidden"
+          name="action"
+          value="new_revision"
+        >
+
+        <input
+          type="hidden"
+          name="brand"
+          value="{{ notes.brand }}"
+        >
+
+        <textarea name="executive_summary" hidden>{{ notes.executive_summary }}</textarea>
+        <textarea name="next_month_plan" hidden>{{ notes.next_month_plan }}</textarea>
+        <textarea name="client_message" hidden>{{ notes.client_message }}</textarea>
+
+        <button
+          class="button primary"
+          type="submit"
+        >
+          Save this report
+        </button>
+      </form>
+
+      <p class="muted">
+        Saving creates a new private report version using the latest
+        eligible observations. It does not publish the report or
+        notify the client. Open the saved version to verify it
+        before publishing.
+      </p>
+    </section>
+
+    {% include "report_body.html" %}
+
+  </div>
+</section>
+{% endblock %}

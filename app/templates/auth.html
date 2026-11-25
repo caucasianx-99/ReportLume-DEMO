@@ -1,0 +1,207 @@
+
+{% extends "base.html" %}
+
+{% block title %}
+  {% if mode == "signup" %}
+    Create account
+  {% elif mode == "login" %}
+    Sign in
+  {% elif mode == "reset" %}
+    Reset password
+  {% else %}
+    Account information
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<section class="section auth-section">
+  <div class="container auth-container">
+
+    <div class="auth-card">
+
+      <span class="kicker">
+        REPORTLUME ACCOUNT
+      </span>
+
+      {% if mode == "signup" %}
+
+        <h1>Create your account</h1>
+
+        <p class="muted">
+          Start organizing your X ghostwriting clients
+          and preparing professional monthly reports.
+        </p>
+
+      {% elif mode == "login" %}
+
+        <h1>Welcome back</h1>
+
+        <p class="muted">
+          Sign in to your client reporting workspace.
+        </p>
+
+      {% elif mode == "reset" %}
+
+        <h1>Reset your password</h1>
+
+        <p class="muted">
+          Enter the email address associated with your account
+          to request a password reset link.
+        </p>
+
+      {% else %}
+
+        <h1>Account information</h1>
+
+      {% endif %}
+
+      {% if message %}
+
+        <div
+          class="notice"
+          role="status"
+          aria-live="polite"
+        >
+          {{ message }}
+        </div>
+
+      {% endif %}
+
+      {% if mode in ["signup", "login", "reset"] %}
+
+        <form
+          method="post"
+          action="{% if mode == 'signup' %}/signup{% elif mode == 'reset' %}/forgot-password{% else %}/login{% endif %}"
+          class="auth-form"
+        >
+          <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token }}"
+          >
+
+          <label for="email">
+            Email address
+          </label>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            value="{{ email or '' }}"
+            autocomplete="email"
+            maxlength="254"
+            required
+          >
+
+          {% if mode != "reset" %}
+
+            <label for="password">
+              Password
+            </label>
+
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="{% if mode == 'signup' %}new-password{% else %}current-password{% endif %}"
+              {% if mode == "signup" %}
+                minlength="12"
+              {% endif %}
+              maxlength="128"
+              required
+            >
+
+            {% if mode == "signup" %}
+
+              <small class="muted">
+                Use a password with at least 12 characters.
+              </small>
+
+              <p class="muted" id="signup-terms">
+                By creating an account you agree to the
+                <a href="/terms">Terms</a> and confirm that you have read the
+                <a href="/privacy">Privacy notice</a>.
+              </p>
+
+            {% endif %}
+
+          {% endif %}
+
+          <button
+            type="submit"
+            class="button primary full"
+          >
+            {% if mode == "signup" %}
+              Create account
+            {% elif mode == "reset" %}
+              Request reset link
+            {% else %}
+              Sign in
+            {% endif %}
+          </button>
+
+        </form>
+
+      {% endif %}
+
+      <div class="auth-footer">
+
+        {% if mode == "login" %}
+
+          <a href="/forgot-password">
+            Forgot password?
+          </a>
+
+          <span>
+            New to Reportlume?
+            <a href="/signup">
+              Create an account
+            </a>
+          </span>
+
+        {% elif mode == "signup" %}
+
+          <span>
+            Already have an account?
+            <a href="/login">Sign in</a>
+          </span>
+
+        {% elif mode == "reset" %}
+
+          <a href="/login">
+            Back to sign in
+          </a>
+
+        {% else %}
+
+          <a
+            class="button secondary"
+            href="/login"
+          >
+            Go to sign in
+          </a>
+
+        {% endif %}
+
+      </div>
+
+      
+
+      <p class="auth-disclaimer">
+        Email verification is required before accessing
+        a real workspace.
+
+        {% if settings.app_env in ["development", "staging"] %}
+          This is a test environment; do not upload
+          confidential customer records.
+        {% endif %}
+      </p>
+
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

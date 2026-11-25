@@ -1,0 +1,951 @@
+/* Reportlume application theme.
+   Includes the former p2_polish.css and classification_fix.css rules.
+   Agency pricing preview is display-only.
+   The separate public report/PDF styling remains independent.
+*/
+
+:root {
+  color-scheme: dark;
+  --ink: #f2f5fa;
+  --muted: #a8b5c6;
+  --teal: #39c7b5;
+  --deep: #10151f;
+  --line: #334354;
+  --surface: #1c2635;
+  --cloud: #10151f;
+  --shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+}
+
+body.app-dark-shell {
+  background: #10151f;
+  color: var(--ink);
+}
+
+.site-header,
+.site-footer {
+  background: #121c29;
+  border-color: #304154;
+}
+
+.site-header .brand,
+.site-header .topbar nav,
+.site-header .contact-nav {
+  color: var(--ink);
+}
+
+.site-header .brandmark {
+  background: var(--teal);
+  color: #10151f;
+}
+
+.site-header a:hover,
+.footer-links a:hover,
+.text-link:hover {
+  color: #77e6d8;
+}
+
+.site-footer,
+.site-footer .footnote,
+.site-footer .footer-inner span,
+.site-footer .footer-links {
+  color: var(--muted);
+}
+
+.section,
+.dashboard-section,
+.auth-section,
+.sample-section,
+.soft {
+  background: #10151f;
+  color: var(--ink);
+}
+
+.hero,
+.p2-hero {
+  background:
+    radial-gradient(
+      ellipse at 76% 10%,
+      rgba(57, 199, 181, 0.10),
+      transparent 55%
+    ),
+    linear-gradient(180deg, #121d2a, #10151f);
+  color: var(--ink);
+}
+
+.hero .lead,
+.section .muted,
+.subtle,
+.section-desc,
+.feature p,
+.price-card p,
+.price-card small,
+.auth-disclaimer,
+.workspace-panel .muted,
+.report-heading .muted {
+  color: var(--muted);
+}
+
+.hero h1 span,
+.kicker,
+.eyebrow,
+.feature-index,
+.text-link,
+.auth-footer a {
+  color: var(--teal);
+}
+
+.button.primary {
+  background: #39c7b5;
+  color: #10151f;
+  border-color: #39c7b5;
+}
+
+.button.primary:hover {
+  background: #65dfd1;
+  border-color: #65dfd1;
+}
+
+.button.secondary {
+  background: #233347;
+  color: #f2f5fa;
+  border: 1px solid #496077;
+}
+
+.button.secondary:hover {
+  background: #30445b;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea,
+.auth-form input,
+.workspace-form input,
+.workspace-form textarea,
+.workspace-form select {
+  background: #172332;
+  color: var(--ink);
+  border-color: #536579;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #67e1d1;
+  outline-offset: 3px;
+}
+
+.feature,
+.price-card,
+.preview-card,
+.auth-card,
+.workspace-panel,
+.report-panel,
+.report-head,
+.stat,
+.dashboard-access,
+.dashboard-pulse-card,
+.p2-hero-preview {
+  background: #1c2635;
+  color: var(--ink);
+  border: 1px solid #34475c;
+  box-shadow: var(--shadow);
+}
+
+.notice {
+  background: #193a3d;
+  color: #d1faf3;
+  border-color: #388b84;
+}
+
+.pill {
+  background: #264442;
+  color: #9aefe2;
+}
+
+.dashboard-section table:not(.report-table) {
+  color: var(--ink);
+}
+
+.dashboard-section table:not(.report-table) th {
+  background: #233448;
+  color: #f2f5fa;
+}
+
+.dashboard-section table:not(.report-table) td {
+  border-color: #34475c;
+}
+
+.workspace-panel h2,
+.feature h3,
+.price-card h3,
+.auth-card h1 {
+  color: var(--ink);
+}
+
+.report-paper,
+.report-paper .report-metric,
+.report-paper .report-compact-metrics > div,
+.report-review-panel,
+.client-report-page {
+  color-scheme: light;
+}
+
+.report-paper {
+  color: #203344;
+  background: #ffffff;
+}
+
+.p2-hero-preview {
+  border-radius: 20px;
+  padding: 28px;
+}
+
+.p2-preview-top,
+.dashboard-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.p2-hero-preview h2 {
+  margin: 22px 0 6px;
+  font-size: clamp(1.45rem, 2.5vw, 2.2rem);
+}
+
+.p2-hero-preview p {
+  color: var(--muted);
+}
+
+.p2-preview-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 28px 0;
+}
+
+.p2-preview-stat-grid > div {
+  padding: 16px;
+  border: 1px solid #3f5669;
+  border-radius: 12px;
+  background: #13212f;
+}
+
+.p2-preview-stat-grid small {
+  display: block;
+  color: var(--muted);
+}
+
+.p2-preview-stat-grid strong {
+  display: block;
+  font-size: 1.4rem;
+  padding-top: 8px;
+}
+
+.p2-preview-disclosure {
+  font-size: 0.85rem;
+}
+
+.dashboard-access {
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 22px 0;
+}
+
+.dashboard-access h2 {
+  margin: 6px 0;
+  color: var(--ink);
+}
+
+.dashboard-access p {
+  margin: 4px 0;
+}
+
+.dashboard-pulse {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.dashboard-pulse-card {
+  border-radius: 14px;
+  padding: 22px;
+}
+
+.dashboard-pulse-card span,
+.dashboard-pulse-card small {
+  display: block;
+  color: var(--muted);
+}
+
+.dashboard-pulse-card strong {
+  display: block;
+  font-size: 2rem;
+  line-height: 1.25;
+  margin: 12px 0;
+}
+
+.dashboard-clients {
+  margin: 28px 0;
+}
+
+.dashboard-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 18px;
+}
+
+.dashboard-client-table {
+  width: 100%;
+  min-width: 690px;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.dashboard-client-table th,
+.dashboard-client-table td {
+  padding: 13px 12px;
+  border-bottom: 1px solid #34475c;
+  vertical-align: top;
+}
+
+.dashboard-client-table small {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.dashboard-client-table a {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.dashboard-empty {
+  padding: 30px 8px;
+}
+
+.dashboard-bottom-note {
+  margin-top: 24px;
+}
+
+.sample-notice,
+.sample-followup {
+  margin-bottom: 24px;
+}
+
+.demo-step-buttons {
+  margin: 24px 0;
+}
+
+@media (max-width: 900px) {
+  .dashboard-pulse {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .topbar {
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 0;
+  }
+
+  .topbar nav {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    overflow-x: auto;
+    gap: 18px;
+  }
+
+  .contact-nav {
+    margin-left: auto;
+  }
+
+  .dashboard-pulse,
+  .p2-preview-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .p2-hero-preview {
+    padding: 20px;
+  }
+}
+
+/* Former p2_polish.css */
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 10000;
+  display: inline-block;
+  padding: 12px 18px;
+  background: #39c7b5;
+  color: #10151f;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.skip-link:focus-visible {
+  top: 12px;
+  outline: 3px solid #f2f5fa;
+  outline-offset: 2px;
+}
+
+.app-error-panel {
+  max-width: 620px;
+  margin: 60px auto 100px;
+  padding: 34px;
+  border-radius: 16px;
+}
+
+.app-error-panel h1 {
+  color: #f2f5fa;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+  margin: 12px 0;
+}
+
+.app-error-panel p:not(.kicker) {
+  color: #a8b5c6;
+  line-height: 1.6;
+}
+
+.app-dark-shell .notice,
+.app-dark-shell .workspace-panel,
+.app-dark-shell .feature,
+.app-dark-shell .price-card {
+  overflow-wrap: anywhere;
+}
+
+.app-dark-shell input:disabled,
+.app-dark-shell button:disabled,
+.app-dark-shell select:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+#sample-workspace [data-demo-panel][hidden] {
+  display: none !important;
+}
+
+#sample-workspace [data-demo-step][aria-pressed="true"] {
+  border-color: #39c7b5;
+  color: #10151f;
+  background: #39c7b5;
+}
+
+#sample-workspace [data-demo-step]:focus-visible {
+  outline: 3px solid #8df1e4;
+  outline-offset: 3px;
+}
+
+@media (max-width: 660px) {
+  .app-error-panel {
+    margin: 26px auto 60px;
+    padding: 20px;
+  }
+
+  .site-header .topbar nav {
+    max-width: 100%;
+    scrollbar-width: thin;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-dark-shell *,
+  .app-dark-shell *::before,
+  .app-dark-shell *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.app-dark-shell .summary-stat,
+.app-dark-shell .import-stats > div,
+.app-dark-shell .selection-toolbar {
+  background: #1c2635;
+  color: #f2f5fa;
+  border-color: #43566d;
+}
+
+.app-dark-shell .summary-stat strong,
+.app-dark-shell .import-stats dd,
+.app-dark-shell .selection-toolbar strong,
+.app-dark-shell .selection-toolbar label {
+  color: #f2f5fa;
+}
+
+.app-dark-shell .summary-stat span,
+.app-dark-shell .summary-stat small,
+.app-dark-shell .import-stats dt {
+  color: #b7c5d5;
+}
+
+.app-dark-shell #content-csv,
+.app-dark-shell .classification-filters input,
+.app-dark-shell .classification-filters select,
+.app-dark-shell .classification-editor select {
+  background: #172332;
+  color: #f2f5fa;
+  border-color: #536579;
+  color-scheme: dark;
+}
+
+.app-dark-shell #content-csv::file-selector-button {
+  background: #30445b;
+  color: #f2f5fa;
+  border: 1px solid #61768b;
+  border-radius: 7px;
+  padding: 8px 12px;
+  margin-right: 12px;
+}
+
+.app-dark-shell .selection-toolbar,
+.app-dark-shell .classification-row {
+  border-color: #43566d;
+}
+
+.app-dark-shell .client-row {
+  border-color: #35485d;
+}
+
+.app-dark-shell a.client-row:hover,
+.app-dark-shell a.client-row:focus-visible {
+  background: #26384d;
+}
+
+.app-dark-shell .client-row strong,
+.app-dark-shell .client-row-end,
+.app-dark-shell .client-open {
+  color: #f2f5fa;
+}
+
+.app-dark-shell .client-status {
+  background: #263a4b;
+  color: #dbe8f4;
+}
+
+.app-dark-shell .client-status.active {
+  background: #193d35;
+  color: #a7f0d8;
+}
+
+.app-dark-shell .client-status.paused {
+  background: #49391e;
+  color: #ffe2a1;
+}
+
+.app-dark-shell .client-status.archived {
+  background: #343d49;
+  color: #e0e6ee;
+}
+
+.app-dark-shell .proof-table-wrap {
+  border-color: #43566d;
+}
+
+.app-dark-shell .proof-table thead,
+.app-dark-shell .proof-table thead th {
+  background: #25364a;
+  color: #f2f5fa;
+}
+
+.app-dark-shell .proof-table tbody th,
+.app-dark-shell .proof-table tbody td {
+  color: #e7eff8;
+  border-color: #43566d;
+}
+
+.app-dark-shell .proof-table tbody tr:hover {
+  background: #26384d;
+}
+
+.app-dark-shell .proof-unavailable {
+  background: #352c21;
+  border-color: #887044;
+}
+
+.app-dark-shell .proof-unavailable strong {
+  color: #ffdf9f;
+}
+
+.app-dark-shell .proof-unavailable p,
+.app-dark-shell .workspace-panel .proof-unavailable .muted {
+  color: #f2dbb3;
+}
+
+.app-dark-shell .danger-button {
+  background: #492a33;
+  border-color: #945666;
+  color: #ffe5e8;
+}
+
+.app-dark-shell .danger-button:hover {
+  background: #623542;
+}
+
+.app-dark-shell .workspace-panel > .report-table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  color: #f2f5fa;
+}
+
+.app-dark-shell .workspace-panel > .report-table thead,
+.app-dark-shell .workspace-panel > .report-table th {
+  color: #f2f5fa;
+  background: #25364a;
+}
+
+.app-dark-shell .workspace-panel > .report-table td {
+  color: #e7eff8;
+  border-color: #43566d;
+}
+
+.app-dark-shell .publication-checklist li > span {
+  color: #ffd39a;
+}
+
+.app-dark-shell .publication-checklist li:has(> span) {
+  border-color: #52647c;
+}
+
+.client-workflow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.client-workflow-actions .button {
+  min-height: 44px;
+}
+
+@media (max-width: 580px) {
+  .client-workflow-actions .button {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Former classification_fix.css */
+
+.classification-filters select,
+.classification-editor select,
+.classification-filters input,
+.classification-editor input[type="text"] {
+  background: #1c2635;
+  color: #f2f5fa;
+  border: 1px solid #52647c;
+  color-scheme: dark;
+}
+
+.classification-filters select option,
+.classification-editor select option {
+  background-color: #1c2635;
+  color: #f2f5fa;
+}
+
+.classification-filters select:focus-visible,
+.classification-editor select:focus-visible,
+.classification-filters input:focus-visible,
+.classification-editor input:focus-visible {
+  outline: 2px solid #39c7b5;
+  outline-offset: 2px;
+}
+
+.classification-filters input::placeholder,
+.classification-editor input::placeholder {
+  color: #afbdce;
+  opacity: 1;
+}
+
+.classification-row[hidden] {
+  display: none !important;
+}
+
+.classification-row {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.classification-post-info {
+  min-width: 0;
+}
+
+.classification-post-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.classification-row .classification-date {
+  color: #b9c8d8;
+}
+
+.classification-labels strong {
+  color: #f2f5fa;
+}
+
+.classification-row .possible-reply {
+  color: #ffe1a4;
+  border-color: #9a783d;
+  background: #49391e;
+}
+
+.selection-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.selection-toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.selection-toolbar input[type="checkbox"],
+.classification-row input[type="checkbox"] {
+  accent-color: #39c7b5;
+}
+
+.classification-editor button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 600px) {
+  .classification-filters,
+  .classification-labels {
+    min-width: 0;
+  }
+
+  .classification-filters > *,
+  .classification-labels > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .classification-editor input,
+  .classification-editor select,
+  .classification-filters input,
+  .classification-filters select {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Agency pricing — display only */
+
+.agency-pricing-control {
+  display: grid;
+  gap: 10px;
+  margin: 15px 0 18px;
+}
+
+.agency-pricing-control label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-weight: 700;
+}
+
+.agency-pricing-control input[type="range"] {
+  display: block;
+  width: 100%;
+  accent-color: #39c7b5;
+  cursor: pointer;
+}
+
+.agency-pricing-control output {
+  font-variant-numeric: tabular-nums;
+}
+
+.agency-pricing-control p {
+  margin: 0;
+}
+
+.agency-billing-preview {
+  align-items: flex-start;
+}
+
+.agency-billing-preview > div {
+  width: 100%;
+}
+
+@media (min-width: 1100px) {
+  #pricing .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  #pricing .client-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  #pricing .client-list > small {
+    grid-column: 1 / -1;
+  }
+
+  #pricing .price-card {
+    padding: 24px;
+  }
+
+  #pricing .price-card h3 {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 720px) and (max-width: 1099px) {
+  #pricing .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  #pricing .client-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  #pricing .client-list > small {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Dark theme corrections */
+
+/* Plan rows on the billing page are not links: no light hover. */
+.app-dark-shell .client-row:not(a):hover {
+  background: transparent;
+}
+
+/* Form errors in the dark palette (the base style is light pink). */
+.app-dark-shell .form-error {
+  background: #3a1f26;
+  border-color: #8a4651;
+  color: #ffd3d0;
+}
+
+/* Inline links in running text look like links. */
+.app-dark-shell main p a:not([class]):not(.report-paper a),
+.app-dark-shell main li a:not([class]):not(.report-paper a),
+.app-dark-shell main small a:not([class]),
+.app-dark-shell main .notice a:not([class]),
+.app-dark-shell main .form-error a:not([class]) {
+  color: var(--teal);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.app-dark-shell main .form-error a:not([class]) {
+  color: #ffd3d0;
+}
+
+/* Button labels break between words, never inside a word. */
+.app-dark-shell .button,
+.app-dark-shell button {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+/* A back link followed by a section label sits on its own line. */
+.text-link + .kicker {
+  display: block;
+  margin-top: 14px;
+}
+
+.report-wrap > .text-link + .report-heading {
+  margin-top: 14px;
+}
+
+/* The owner workspace heading uses the dark divider, not the paper one. */
+.app-dark-shell .report-wrap > .report-heading {
+  border-bottom-color: #34475c;
+}
+
+/* Fields of a single-panel form keep their spacing. */
+.app-dark-shell .workspace-panel > form.workspace-form {
+  display: grid;
+  gap: 18px;
+}
+
+.app-dark-shell .workspace-panel > form.workspace-form > .button,
+.app-dark-shell .workspace-panel > form.workspace-form > button {
+  justify-self: start;
+}
+
+/* Lists in forms match the text inputs. */
+.app-dark-shell .form-field select {
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 13px;
+  border: 1px solid #536579;
+  border-radius: 9px;
+  color-scheme: dark;
+}
+
+.app-dark-shell select[name="capacity"] {
+  display: block;
+  min-height: 40px;
+  margin: 6px 0 10px;
+  padding: 8px 10px;
+  border: 1px solid #536579;
+  border-radius: 8px;
+  color-scheme: dark;
+}
+
+.app-dark-shell .form-field input[type="file"] {
+  color-scheme: dark;
+}
+
+/* Action rows outside the report workspace stylesheet. */
+.app-dark-shell .report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+}
+
+.app-error-panel .report-actions {
+  margin: 22px 0 18px;
+}
+
+/* Toolbar buttons above a report on a dark page. */
+.app-dark-shell .report-toolbar .button.secondary {
+  background: #233347;
+  color: #f2f5fa;
+  border-color: #496077;
+}
+
+/* "Clear selected topics" keeps a normal checkbox on narrow screens. */
+.app-dark-shell .classification-editor .clear-topic-label input[type="checkbox"] {
+  width: auto;
+  max-width: none;
+  flex: 0 0 auto;
+}

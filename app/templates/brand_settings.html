@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Agency branding{% endblock %}
+
+{% block content %}
+<section class="section dashboard-section">
+  <div class="container narrow">
+    <a class="text-link" href="/dashboard">
+      Back to dashboard
+    </a>
+
+    <div class="dashboard-heading">
+      <div>
+        <span class="kicker">WHITE-LABEL SETTINGS</span>
+        <h1>Agency branding</h1>
+        <p class="muted">
+          All three plans can display your agency name.
+          Professional and Agency also support a custom
+          logo and report color palette.
+        </p>
+      </div>
+    </div>
+
+    {% if message %}
+      <div class="notice" role="status">
+        {{ message }}
+      </div>
+    {% endif %}
+
+    {% if error %}
+      <div class="form-error" role="alert">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    {% if not editable %}
+      <div class="notice">
+        Brand settings are currently read-only.
+        Existing saved reports retain their original branding.
+        <a href="/dashboard">Return to dashboard</a>.
+      </div>
+    {% endif %}
+
+    <section class="workspace-panel">
+      <h2>Your agency identity</h2>
+
+      <p class="muted">
+        Reportlume does not appear as your reporting agency.
+        Enter your own agency or professional name before
+        publishing a client report.
+      </p>
+
+      <form
+        method="post"
+        action="/settings/brand"
+        enctype="multipart/form-data"
+        class="workspace-form"
+      >
+        <input
+          type="hidden"
+          name="csrf_token"
+          value="{{ csrf_token }}"
+        >
+
+        <div class="form-field">
+          <label for="brand_name">Agency name *</label>
+
+          <input
+            id="brand_name"
+            name="brand_name"
+            maxlength="80"
+            value="{{ profile.get('brand_name') or '' }}"
+            placeholder="Your agency or professional name"
+            {% if not editable %}disabled{% endif %}
+            required
+          >
+
+          <small class="muted">
+            This name will appear on newly saved report versions.
+            Avoid placeholders such as “Your Agency.”
+          </small>
+        </div>
+
+        {% if custom_branding %}
+          <div class="form-field">
+            <label for="brand_theme">
+              Report color palette
+            </label>
+
+            <select
+              id="brand_theme"
+              name="brand_theme"
+              {% if not editable %}disabled{% endif %}
+            >
+              <option
+                value="teal"
+                {% if profile.get('brand_theme', 'teal') == 'teal' %}
+                  selected
+                {% endif %}
+              >
+                Teal
+              </option>
+
+              <option
+                value="blue"
+                {% if profile.get('brand_theme') == 'blue' %}
+                  selected
+                {% endif %}
+              >
+                Blue
+              </option>
+
+              <option
+                value="slate"
+                {% if profile.get('brand_theme') == 'slate' %}
+                  selected
+                {% endif %}
+              >
+                Slate
+              </option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="logo">Agency logo</label>
+
+            <input
+              id="logo"
+              name="logo"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              {% if not editable %}disabled{% endif %}
+            >
+
+            <small class="muted">
+              Optional PNG, JPEG or WebP, up to 200 KB.
+              The uploaded image is normalized and its
+              source metadata is removed.
+            </small>
+          </div>
+
+          {% if profile.get('brand_logo_b64') %}
+            <div class="form-field">
+              <p>Saved logo</p>
+
+              <img
+                class="agency-logo-preview"
+                src="data:image/png;base64,{{ profile.brand_logo_b64 }}"
+                alt="Current agency logo"
+              >
+
+              {% if editable %}
+                <label class="consent-label">
+                  <input
+                    type="checkbox"
+                    name="remove_logo"
+                    value="on"
+                  >
+                  <span>Remove the saved logo</span>
+                </label>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        {% elif editable %}
+          <div class="notice">
+            Solo uses the standard report design.
+            Previously saved logo and colors remain stored
+            but are not applied to new Solo reports.
+            Upgrade to Professional or Agency to edit them again.
+          </div>
+        {% endif %}
+
+        {% if editable %}
+          <button class="button primary" type="submit">
+            Save agency name{% if custom_branding %} and branding{% endif %}
+          </button>
+        {% endif %}
+      </form>
+    </section>
+
+    <section class="workspace-panel">
+      <h2>How branding affects your reports</h2>
+
+      <p>
+        Your agency name appears in new reports on all plans.
+        Custom logos and colors are available in the source edition. Frozen reports are never changed
+        when you switch plans or update your settings.
+      </p>
+
+      <p class="muted">
+        Already published reports and their private links
+        continue to display their original frozen content.
+      </p>
+
+      <a class="button secondary" href="/clients">
+        Open clients
+      </a>
+    </section>
+  </div>
+</section>
+{% endblock %}

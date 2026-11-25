@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Read-only demonstration workspace
+{% endblock %}
+
+{% block content %}
+
+<section class="section dashboard-section">
+    <div
+        class="container narrow"
+        id="sample-workspace"
+    >
+
+        <div
+            class="notice"
+            role="status"
+        >
+            <strong>
+                SYNTHETIC DEMONSTRATION — NO REAL CLIENT DATA.
+            </strong>
+
+            This is a permanent, virtual and read-only example.
+
+            It does not upload files, change customer information,
+            use a client slot or start a trial.
+        </div>
+
+        <span class="kicker">
+            CLIENT REPORTING WORKFLOW
+        </span>
+
+        <h1>
+            Explore a monthly reporting cycle
+        </h1>
+
+        <p class="muted">
+            The fictional source contains
+            {{ demo.csv_record_count }} records.
+
+            The October report includes
+            {{ demo.report_record_count }} records
+            from the same illustrative set.
+        </p>
+
+        <!-- Demo navigation -->
+
+        <div
+            class="report-actions demo-step-buttons"
+            aria-label="Demonstration sections"
+        >
+            <button
+                type="button"
+                class="button secondary"
+                data-demo-step="import"
+            >
+                1. Import
+            </button>
+
+            <button
+                type="button"
+                class="button secondary"
+                data-demo-step="classify"
+            >
+                2. Classify
+            </button>
+
+            <button
+                type="button"
+                class="button secondary"
+                data-demo-step="delivery"
+            >
+                3. Proof of Work
+            </button>
+
+            <button
+                type="button"
+                class="button secondary"
+                data-demo-step="report"
+            >
+                4. Report
+            </button>
+        </div>
+
+        <!-- Import demonstration -->
+
+        <section
+            class="workspace-panel"
+            data-demo-panel="import"
+        >
+            <h2>
+                CSV review
+            </h2>
+
+            <p>
+                The actual workflow reviews import scope,
+                observation date and duplicate IDs before
+                users confirm a CSV import.
+            </p>
+
+            <p>
+                <strong>
+                    Example measurement date:
+                </strong>
+
+                {% set measured = demo.snapshot.measurement.dates[0] %}
+                {% set demo_months = [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                ] %}
+                {{ measured[8:10]|int }}
+                {{ demo_months[(measured[5:7]|int) - 1] }}
+                {{ measured[:4] }}
+            </p>
+
+            <p class="muted">
+                All figures are invented for this demonstration;
+                no data is uploaded.
+            </p>
+        </section>
+
+        <!-- Classification demonstration -->
+
+        <section
+            class="workspace-panel"
+            data-demo-panel="classify"
+            hidden
+        >
+            <h2>
+                Content attribution
+            </h2>
+
+            <p>
+                Possible replies are suggestions,
+                not automatic facts.
+
+                Authorship and Post/Reply type require
+                explicit confirmation.
+            </p>
+
+            <p>
+                <strong>
+                    Illustrative uncategorized records:
+                </strong>
+
+                {{ demo.snapshot.breakdown.not_categorized_count }}
+            </p>
+
+            <p class="muted">
+                This display cannot edit or save any records.
+            </p>
+        </section>
+
+        <!-- Proof of Work demonstration -->
+
+        <section
+            class="workspace-panel"
+            data-demo-panel="delivery"
+            hidden
+        >
+            <h2>
+                Proof of Work
+            </h2>
+
+            <p>
+                Only classified Ghostwriter Posts and Replies
+                count as observed content.
+
+                Manually delivered work is recorded separately.
+            </p>
+
+            <ul>
+                {% for item in demo.snapshot.proof.deliverables %}
+                    <li>
+                        {{ item.name }}:
+
+                        {{
+                            item.delivered
+                            if item.delivered is not none
+                            else 'Not recorded'
+                        }}
+
+                        observed/declared against
+                        {{ item.committed }} planned.
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <p class="muted">
+                Work totals are examples, not third-party verified
+                claims. A numerical performance comparison is shown
+                only when source and age rules are satisfied.
+            </p>
+        </section>
+
+        <!-- Report demonstration -->
+
+        <section
+            class="workspace-panel"
+            data-demo-panel="report"
+            hidden
+        >
+            <h2>
+                Client-ready presentation
+            </h2>
+
+            <p>
+                View the same report template used for saved
+                V2 revisions, including totals, coverage,
+                content groups and source limitations.
+            </p>
+
+            <a
+                class="button primary"
+                href="/sample"
+            >
+                View fictional client report
+            </a>
+
+            <p class="muted">
+                Reviewing a report is separate from authorizing
+                a public case study.
+            </p>
+        </section>
+
+    </div>
+</section>
+
+<script
+    src="/static/js/sample_workspace.js"
+    defer
+></script>
+
+{% endblock %}

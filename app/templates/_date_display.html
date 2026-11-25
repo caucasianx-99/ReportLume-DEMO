@@ -1,0 +1,110 @@
+
+{# Presentation helpers only; stored timestamps and API values remain ISO 8601. #}
+
+{% set date_months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+] %}
+
+{% macro date_label(value) -%}
+    {%- set raw = value if value is string else '' -%}
+
+    {%- set valid = raw|length >= 10
+        and raw[4] == '-'
+        and raw[7] == '-'
+        and raw[:4].isdigit()
+        and raw[5:7].isdigit()
+        and raw[8:10].isdigit() -%}
+
+    {%- if valid -%}
+        {%- set year = raw[:4]|int -%}
+        {%- set month = raw[5:7]|int -%}
+        {%- set day = raw[8:10]|int -%}
+
+        {%- set leap = year % 4 == 0
+            and (year % 100 != 0 or year % 400 == 0) -%}
+
+        {%- set days = [
+            31,
+            29 if leap else 28,
+            31,
+            30,
+            31,
+            30,
+            31,
+            31,
+            30,
+            31,
+            30,
+            31
+        ] -%}
+
+        {%- set valid = year > 0
+            and 1 <= month <= 12
+            and 1 <= day <= days[month - 1] -%}
+    {%- endif -%}
+
+    {%- if valid -%}
+        {{- date_months[month - 1] ~ ' ' ~ day ~ ', ' ~ year -}}
+    {%- elif value is none or value == '' -%}
+        Not set
+    {%- else -%}
+        {{- value -}}
+    {%- endif -%}
+{%- endmacro %}
+
+
+{% macro month_label(value) -%}
+    {%- set raw = value if value is string else '' -%}
+
+    {%- if raw|length == 7
+        and raw[4] == '-'
+        and raw[:4].isdigit()
+        and raw[5:7].isdigit()
+        and (raw[:4]|int) > 0
+        and 1 <= (raw[5:7]|int) <= 12 -%}
+        {{- date_months[(raw[5:7]|int) - 1] ~ ' ' ~ raw[:4] -}}
+    {%- elif value is none or value == '' -%}
+        Not set
+    {%- else -%}
+        {{- value -}}
+    {%- endif -%}
+{%- endmacro %}
+
+
+{% macro datetime_label(value) -%}
+    {%- set raw = value if value is string else '' -%}
+
+    {%- set iso_date = raw|length >= 16
+        and raw[10] == 'T' -%}
+
+    {%- set clock = iso_date
+        and raw[11:13].isdigit()
+        and raw[13] == ':'
+        and raw[14:16].isdigit()
+        and (raw[11:13]|int) <= 23
+        and (raw[14:16]|int) <= 59 -%}
+
+    {%- if clock -%}
+        {%- set display = date_label(raw[:10]) ~ ' at ' ~ raw[11:16] -%}
+
+        {%- if raw.endswith('Z') or raw.endswith('+00:00') -%}
+            {{- display ~ ' UTC' -}}
+
+        {%- elif raw|length >= 6
+            and raw[-6] in ['+', '-']
+            and raw[-3] == ':'
+            and raw[-5:-3].isdigit()
+            and raw[-2:].isdigit()
+            and (raw[-5:-3]|int) <= 23
+            and (raw[-2:]|int) <= 59 -%}
+            {{- display ~ ' UTC' ~ raw[-6:] -}}
+
+        {%- else -%}
+            {{- display ~ ' (time zone not specified)' -}}
+        {%- endif -%}
+
+    {%- else -%}
+        {{- date_label(value) -}}
+    {%- endif -%}
+{%- endmacro %}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <meta
+        name="robots"
+        content="noindex,nofollow,noarchive"
+    >
+
+    <meta
+        name="referrer"
+        content="no-referrer"
+    >
+
+    <link rel="icon" href="data:,">
+
+    <title>
+        {% block title %}
+            Client report
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="/static/css/reporting.css"
+    >
+
+    {% block extra_head %}
+    {% endblock %}
+</head>
+
+<body class="client-report-page">
+    <main
+        id="main-content"
+        class="public-report-main"
+    >
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,15 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const core = require('../docs/core.js');
+const sample = fs.readFileSync(path.join(__dirname,'../docs/sample.csv'),'utf8');
+const header = 'Post id,Date,Post text,Impressions,Engagements\n';
+test('original fictional CSV and actual totals',()=>{const p=core.parse(sample).posts,s=core.summarize(p);assert.equal(p.length,10);assert.equal(s.totals.impressions.value,989);assert.equal(s.totals.engagements.value,83);assert.ok(Math.abs(s.rate-83/989*100)<1e-9)});
+test('quoted commas, quotes and multiline fields',()=>{assert.equal(core.parse(header+'1,2026-10-01,"a, ""b""\nc",10,2').posts[0].text,'a, "b"\nc')});
+test('semicolon and grouped values',()=>{assert.equal(core.parse('Post id;Date;Post text;Impressions\n1;2026-10-01;x;1,234').posts[0].metrics.impressions,1234)});
+test('unknown metrics are not zero',()=>{const s=core.summarize(core.parse(header+'1,2026-10-01,x,10,\n2,2026-10-02,y,20,2').posts);assert.equal(s.totals.engagements.value,2);assert.equal(s.totals.engagements.present,1);assert.equal(s.rate,null);assert.equal(s.totals.likes.value,null)});
+test('invalid dates, IDs, negative values and malformed CSV rejected',()=>{for(const row of ['1,2026-02-30,x,10,2','x,2026-10-01,x,10,2','1,2026-10-01,x,-10,2','1,2026-10-01,"unclosed,10,2'])assert.throws(()=>core.parse(header+row))});
+test('exact duplicates merge; conflicting duplicates rejected',()=>{const line='1,2026-10-01,x,10,2';assert.equal(core.parse(header+line+'\n'+line).duplicates,1);assert.throws(()=>core.parse(header+line+'\n1,2026-10-01,x,20,2'))});
+test('reimport preserves classification and replaces metrics without double counting',()=>{const p=core.parse(header+'1,2026-10-01,x,10,2').posts;const old=core.merge([],p).posts;old[0].author='Ghostwriter';old[0].type='Post';const m=core.merge(old,core.parse(header+'1,2026-10-01,x,20,3').posts);assert.equal(m.updated,1);assert.equal(m.posts.length,1);assert.equal(m.posts[0].author,'Ghostwriter');assert.equal(m.posts[0].metrics.impressions,20)});
+test('rounded ID recovery and untrusted URLs rejected',()=>{const h='Post id,Date,Post text,Post Link\n';assert.equal(core.parse(h+'2.0E+18,2026-10-01,x,https://x.com/name/status/2000000000000000001').posts[0].id,'2000000000000000001');assert.throws(()=>core.parse(h+'1,2026-10-01,x,https://evil.example/name/status/1'))});

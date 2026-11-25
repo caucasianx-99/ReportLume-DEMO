@@ -71,7 +71,7 @@ async def proof_page(
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 

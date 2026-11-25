@@ -213,7 +213,7 @@ async def client_list(
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 
@@ -356,7 +356,7 @@ async def keep_solo_clients(request: Request):
     if workspace is None:
         raise HTTPException(
             401,
-            "Authentication required",
+            "Workspace required",
         )
 
     # Includes mandatory double-submit CSRF.
@@ -433,7 +433,7 @@ async def new_client_page(request: Request):
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 
@@ -461,7 +461,7 @@ async def create_client(request: Request):
     if workspace is None:
         raise HTTPException(
             401,
-            "Authentication required",
+            "Workspace required",
         )
 
     data = await read_form(request)
@@ -524,7 +524,7 @@ async def client_detail(
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 
@@ -572,7 +572,7 @@ async def edit_client_page(
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 
@@ -622,7 +622,7 @@ async def edit_client(
     if workspace is None:
         raise HTTPException(
             401,
-            "Authentication required",
+            "Workspace required",
         )
 
     data = await read_form(request)
@@ -684,7 +684,7 @@ async def change_client_status(
     if workspace is None:
         raise HTTPException(
             401,
-            "Authentication required",
+            "Workspace required",
         )
 
     data = await read_form(request)

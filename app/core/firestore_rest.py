@@ -1,84 +1,20 @@
-"""Owner-scoped Firestore REST gateway.
-
-All data operations are constrained to users/{verified_uid}. A TenantStore
-owns one reusable AuthorizedSession, so token refresh and HTTP connections
-can be reused during a single request/workflow.
+"""Owner-scoped storage API retained for compatibility with report services.
+All persistence is local SQLite; Firestore-shaped documents are internal only.
 """
 
 import json
 import math
 import re
 
-import google.auth
-from google.auth.transport.requests import AuthorizedSession
-from google.oauth2 import service_account
+from app.core.local_store import execute
 
-from app.core.config import settings
-
-FIRESTORE_SCOPE = "https://www.googleapis.com/auth/datastore"
 SAFE_ID = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
 POST_ID = re.compile(r"^[0-9]{1,128}$")
 MAX_QUERY_POSTS = 10000
 
-
-class FirestoreUnavailable(RuntimeError):
-    pass
-
-
-class FirestoreNotFound(RuntimeError):
-    pass
-
-
-class FirestoreConflict(RuntimeError):
-    pass
-
-
-def _credentials():
-    raw = settings.firebase_service_account_json
-    if raw:
-        return service_account.Credentials.from_service_account_info(
-            json.loads(raw), scopes=[FIRESTORE_SCOPE]
-        )
-    credentials, _ = google.auth.default(scopes=[FIRESTORE_SCOPE])
-    return credentials
-
-
-PRODUCTION_ROOT = "https://firestore.googleapis.com/v1/"
-_EMULATOR_HOST = re.compile(r"(localhost|127\.0\.0\.1|\[::1\]|[A-Za-z0-9-]{1,63}):[0-9]{2,5}\Z")
-
-
-def emulator_root(config=None) -> str | None:
-    """Base URL of a local Firestore emulator, or None for real Firestore.
-
-    The emulator accepts any data without credentials, so production never
-    uses it, whatever the environment says.
-    """
-    config = settings if config is None else config
-    host = getattr(config, "firestore_emulator_host", "")
-    if not isinstance(host, str) or not host.strip():
-        return None
-    if getattr(config, "production", True):
-        raise FirestoreUnavailable("The Firestore emulator is not allowed in production")
-    host = host.strip()
-    if not _EMULATOR_HOST.fullmatch(host):
-        raise FirestoreUnavailable("Invalid FIRESTORE_EMULATOR_HOST")
-    return f"http://{host}/v1/"
-
-
-def _emulator_session():
-    import requests
-
-    session = requests.Session()
-    # The emulator treats this token as an administrator, like the server SDK.
-    session.headers["Authorization"] = "Bearer owner"
-    return session
-
-
-def _session():
-    if emulator_root() is not None:
-        return _emulator_session()
-    return AuthorizedSession(_credentials())
-
+class FirestoreUnavailable(RuntimeError): pass
+class FirestoreNotFound(RuntimeError): pass
+class FirestoreConflict(RuntimeError): pass
 
 def encode_value(value):
     if value is None:
@@ -128,16 +64,14 @@ def decode_fields(fields: dict) -> dict:
 
 
 class TenantStore:
-    """Firestore REST access for one verified Firebase user."""
+    """SQLite-backed compatibility access for one anonymous workspace."""
 
     def __init__(self, verified_uid: str):
         if not isinstance(verified_uid, str) or not SAFE_ID.fullmatch(verified_uid):
             raise ValueError("Invalid verified UID")
-        if not settings.firebase_ready:
-            raise FirestoreUnavailable("Firestore is not configured")
 
         self.uid = verified_uid
-        self.database = f"projects/{settings.firebase_project_id}/databases/(default)"
+        self.database = "projects/local/databases/(default)"
         self.base_name = f"{self.database}/documents"
         self.user_name = f"{self.base_name}/users/{self.uid}"
         self.base = f"https://firestore.googleapis.com/v1/{self.base_name}"
@@ -155,41 +89,11 @@ class TenantStore:
             raise ValueError("Invalid tenant resource")
 
     def _request(self, method: str, url: str, **kwargs):
+        import sqlite3
         try:
-            root = emulator_root()
-            if root is not None and url.startswith(PRODUCTION_ROOT):
-                url = root + url[len(PRODUCTION_ROOT):]
-            if self._http_session is None:
-                self._http_session = _session()
-            response = self._http_session.request(method, url, timeout=15, **kwargs)
-        except Exception as exc:
-            raise FirestoreUnavailable("Firestore connection failed") from exc
-
-        if response.status_code in (200, 201):
-            try:
-                return response.json()
-            except ValueError:
-                # Firestore streaming RPCs may be returned as newline-delimited JSON.
-                try:
-                    lines = [json.loads(s) for s in response.text.splitlines() if s.strip()]
-                    if lines and all(isinstance(item, dict) for item in lines):
-                        return lines
-                except (AttributeError, TypeError, ValueError):
-                    pass
-                raise FirestoreUnavailable("Invalid Firestore response")
-
-        if response.status_code == 404:
-            raise FirestoreNotFound("Document not found")
-        if response.status_code in (409, 412):
-            raise FirestoreConflict("Write conflict")
-        if response.status_code == 400:
-            try:
-                status = response.json().get("error", {}).get("status")
-            except (ValueError, TypeError, AttributeError):
-                status = None
-            if status in ("ABORTED", "FAILED_PRECONDITION", "ALREADY_EXISTS"):
-                raise FirestoreConflict("Write conflict")
-        raise FirestoreUnavailable("Firestore request was rejected")
+            return execute(self, method, url, **kwargs)
+        except sqlite3.Error as exc:
+            raise FirestoreUnavailable("Local storage unavailable") from exc
 
     def get_document(self, resource: str) -> dict:
         self._check_resource(resource)
@@ -353,16 +257,6 @@ class TenantStore:
     def get_user_with_version(self):
         document = self.get_document(self.user_name)
         return decode_fields(document.get("fields", {})), document["updateTime"]
-
-    def ensure_profile(self, verified_email: str):
-        payload = {"fields": encode_fields({
-            "email": verified_email, "created_via": "firebase_auth",
-        })}
-        try:
-            self._request("POST", self.users_collection_url,
-                          params={"documentId": self.uid}, json=payload)
-        except FirestoreConflict:
-            return
 
     def get_profile(self):
         fields, _ = self.get_user_with_version()

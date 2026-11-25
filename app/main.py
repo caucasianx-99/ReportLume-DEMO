@@ -94,4 +94,4 @@ async def health() -> JSONResponse:
 
 @app.get("/ready", include_in_schema=False)
 async def ready() -> JSONResponse:
-    return JSONResponse({"status": "ok", "firebase_configured": settings.firebase_ready}, headers={"Cache-Control": "no-store"})
+    return JSONResponse({"status": "ok", "storage": "sqlite", "accounts_required": False}, headers={"Cache-Control": "no-store"})

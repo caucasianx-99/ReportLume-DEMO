@@ -23,6 +23,8 @@ PRIVATE_EXACT = {
     "/logout",
     "/forgot-password",
     "/dashboard",
+    "/start",
+    "/workspace/reset",
 }
 
 NOINDEX_PREFIXES = PRIVATE_PREFIXES + (

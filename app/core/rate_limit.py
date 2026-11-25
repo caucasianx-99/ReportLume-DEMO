@@ -94,34 +94,13 @@ def _valid_ip(value: str | None) -> str | None:
 
 
 def resolve_client_ip(request: Request) -> str:
-    """Use X-Real-IP only behind an externally verified Railway edge.
+    """Use the actual ASGI peer; never trust arbitrary forwarding headers.
 
     X-Forwarded-For is deliberately ignored: the repository has no verified
     Railway append/overwrite contract for that header.
     """
 
-    if getattr(settings, "production", False):
-        if not (
-            getattr(settings, "trust_railway_real_ip", False)
-            and getattr(settings, "railway_client_ip_verified", False)
-        ):
-            _temporarily_unavailable()
-
-        # A missing, duplicate or malformed value must never silently fall
-        # back to the shared edge proxy address.
-        values = request.headers.getlist("x-real-ip")
-
-        if len(values) != 1:
-            _temporarily_unavailable()
-
-        resolved = _valid_ip(values[0])
-
-        if resolved is None:
-            _temporarily_unavailable()
-
-        return resolved
-
-    # In local/staging mode, forwarding headers are never trusted.
+    # A reverse proxy shares this rate-limit budget unless ASGI is securely configured.
     host = request.client.host if request.client else None
     resolved = _valid_ip(host)
 

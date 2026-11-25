@@ -33,38 +33,8 @@
 
       <div class="summary-stat">
         <span>Current access</span>
-        <strong>
-          {% if paid %}
-            Community workspace
-          {% elif locked %}
-            Read-only
-          {% elif profile.get('trial_started_at') %}
-            Trial
-          {% else %}
-            Ready to begin
-          {% endif %}
-        </strong>
-
-        <small>
-          {% if selection_required %}
-            Editing and publishing are paused until you choose exactly {{ selection_count }} clients.
-          {% elif paid %}
-            Editing and publishing are available.
-          {% elif locked %}
-            Editing is unavailable. Existing reports remain readable.
-          {% elif profile.get('trial_started_at') %}
-            Your 72-hour free trial is in progress.
-          {% else %}
-            Your trial begins after your first confirmed CSV import.
-          {% endif %}
-        </small>
-
-        {% if not paid and not locked
-            and profile.get('trial_report_client_id') %}
-          <small>
-            Your one free-trial monthly report has already been published.
-          </small>
-        {% endif %}
+        <strong>Free workspace</strong>
+        <small>Editing and publishing are available within storage safety limits.</small>
       </div>
     </div>
 
@@ -251,8 +221,7 @@
       </a>
 
       <p class="muted">
-        This example uses no client slot, account data,
-        trial time or customer storage.
+        This example uses no private workspace data or storage.
       </p>
 
       {% if clients %}
@@ -301,12 +270,7 @@
     {% endif %}
 
     <p class="muted workspace-footnote">
-      The example client is always read-only and never uses your
-      account limits or trial allowance.
-      {% if not paid and not locked
-          and not profile.get('trial_started_at') %}
-        Your free trial starts with your first confirmed real CSV import.
-      {% endif %}
+      The example client is always read-only and never uses private workspace storage.
     </p>
   </div>
 </section>

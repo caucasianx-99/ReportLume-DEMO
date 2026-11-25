@@ -53,7 +53,7 @@ async def data_settings(request: Request):
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 
@@ -96,7 +96,7 @@ async def export_client(
     if workspace is None:
         raise HTTPException(
             401,
-            "Sign in required",
+            "Workspace required",
         )
 
     try:
@@ -151,7 +151,7 @@ async def remove_client(
     if workspace is None:
         raise HTTPException(
             401,
-            "Sign in required",
+            "Workspace required",
         )
 
     # read_form verifies the existing CSRF protection.
@@ -161,29 +161,6 @@ async def remove_client(
         raise HTTPException(
             503,
             "Self-service deletion is not enabled.",
-        )
-
-    claims = await current_user(request)
-
-    auth_time = (
-        claims.get("auth_time", 0)
-        if claims
-        else 0
-    )
-
-    try:
-        seconds = (
-            datetime.now(timezone.utc).timestamp()
-            - float(auth_time)
-        )
-
-    except (TypeError, ValueError, OverflowError):
-        seconds = 9999
-
-    if seconds < 0 or seconds > 300:
-        raise HTTPException(
-            403,
-            "Sign in again before deleting client data.",
         )
 
     try:

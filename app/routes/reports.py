@@ -104,7 +104,7 @@ def _period(period):
 async def _owner(request):
     workspace = await workspace_for(request)
     if workspace is None:
-        raise HTTPException(401, "Sign in required")
+        raise HTTPException(401, "Workspace required")
     return workspace.store
 
 

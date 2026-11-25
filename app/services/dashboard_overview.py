@@ -103,8 +103,8 @@ def access_summary(profile, now=None):
         profile.get("trial_started_at")
     )
 
-    label = "Community workspace"
-    description = "Editing, branding and reporting are available without a subscription."
+    label = "Free workspace"
+    description = "Editing, branding and reporting are free."
     remaining_hours = None
 
     return {

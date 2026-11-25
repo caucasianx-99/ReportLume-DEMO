@@ -69,7 +69,7 @@ async def brand_page(request: Request, saved: int = 0):
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 
@@ -105,7 +105,7 @@ async def update_brand(request: Request):
     if workspace is None:
         raise HTTPException(
             401,
-            "Sign in required",
+            "Workspace required",
         )
 
     content_type = request.headers.get(

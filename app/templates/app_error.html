@@ -20,15 +20,6 @@
         {{ message }}
       </p>
 
-      {% if billing_link|default(false) %}
-        <p class="muted">
-          This action may require an eligible
-          subscription or active trial.
-          You can review your account status
-          without changing existing reports.
-        </p>
-      {% endif %}
-
       <div class="report-actions">
         {% if billing_link|default(false) %}
           <a
@@ -49,9 +40,9 @@
         {% else %}
           <a
             class="button secondary"
-            href="/login"
+            href="/start"
           >
-            Sign in
+            Open workspace
           </a>
         {% endif %}
 

@@ -62,7 +62,7 @@ async def report_preview(
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 
@@ -127,7 +127,7 @@ async def return_to_report_editor(
 
     if workspace is None:
         return RedirectResponse(
-            "/login",
+            "/start",
             status_code=303,
         )
 

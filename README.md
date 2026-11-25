@@ -1,24 +1,30 @@
-# Reportlume
+# Reportlume — Free Edition
 
-Self-hosted source edition of an X Content CSV client reporting workspace. Import authorized exports, classify posts, manage clients, build monthly reports, export PDF and share private review links. The fictional sample workspace is included. No subscription, checkout or payment integrations are included.
+Free, self-hosted X Content CSV analytics and monthly report application. No registration, login, subscription, payment, Firebase, or external database is required. Import authorized CSV exports, manage clients, classify posts, generate monthly reports, export PDF and share private review links. The fictional sample remains available.
 
-## Run locally
+## Local setup (Windows PowerShell)
 
-Python 3.12 recommended. Install the system libraries required by WeasyPrint (see its installation documentation), then:
+Python 3.12 recommended. Install WeasyPrint's system dependencies if PDF rendering is unavailable.
 
-```bash
+```powershell
 python -m venv .venv
-# Activate your virtual environment
-python -m pip install -r requirements.txt
-python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
-Open http://127.0.0.1:8000/sample and /sample/workspace for fictional demonstrations.
+Open http://127.0.0.1:8001/ and select **Open free workspace**. No `.env` is needed for local use. The example report is at `/sample`; the health check is at `/health`.
 
-For real account workflows, create a **new** Firebase project, enable email/password authentication, create Firestore, deploy the included deny-all client rules, copy `.env.example` to `.env`, configure the project ID, web API key and server credentials outside the repository, and set independent random secrets (at least 32 characters). Verify your email after signup. Do not reuse the former commercial database or credentials. The previous Railway deployment is not required.
+## Data and privacy
 
-All authenticated accounts in the new source edition have access to report features, with a 200 active-client safety limit. Authentication and tenant isolation remain in place. Legacy internal paid/trial field names are retained for report schema compatibility; no payment is performed. The production release gates remain fail-closed; this release is intended for local evaluation and requires separate operational/security review before internet deployment.
+- An anonymous, random browser cookie grants access to one workspace; no email or password is collected. The public share identifier is not the owner credential. Keep the cookie private.
+- SQLite defaults to `~/.reportlume/workspace.sqlite3`. Set `REPORTLUME_DB` to a private writable file path to change it. No cloud service is contacted by the storage backend.
+- The workspace expires seven days after creation (data retention, not a paid trial). Expired workspaces become inaccessible and are deleted when another workspace is created. Export data and PDFs before expiry. Clearing cookies loses access. The dashboard can delete the entire workspace, including share links, immediately at the application level. SQLite deletion is not forensic disk erasure.
+- Limits: 500 live workspaces per instance, 30,000 documents and 64 MiB of serialized document data per workspace, plus the existing CSV and reporting safety limits. These are resource protections, not paid plans.
+- For local evaluation use the loopback host. Do not expose development mode to the internet. For public hosting, configure HTTPS, `APP_ENV=production`, `BASE_URL`, a random `IMPORT_PREVIEW_SECRET` (32+ characters), operator identity/contact and actual legal/privacy/security/data-lifecycle approvals; existing production gates refuse new workspaces/imports until approved. Deploy a persistent private database volume, one worker, request/resource rate limits at the edge, backups and periodic expired-record cleanup. Public hosting has not been security/load audited. Share URLs use `BASE_URL`; set it to the actual deployment origin.
+- Do not commit credentials, the database, private exports, or `.env`. Only process authorized analytics. Independent of X; no scraping or automatic posting. X controls analytics export availability.
 
-Do not commit credentials or private exports. Only process authorized analytics. X export availability depends on X. The project is independent of X.
+## Tests
 
-This is a portfolio source release, not an active hosted commercial service. No open-source license has been selected by the author; public visibility alone does not grant reuse rights.
+`python -m pip install -r requirements-dev.txt` then `python -m pytest -q`.
+
+This repository is a portfolio source release. No open-source license has been selected by the author; public visibility alone does not grant reuse rights.

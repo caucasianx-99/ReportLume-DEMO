@@ -11,18 +11,19 @@
         <span class="kicker">YOUR WORKSPACE</span>
         <h1>Client reporting dashboard</h1>
         <p class="muted">
-          Signed in as {{ profile.email }}
+          Free browser workspace · expires after 7 days. Export your reports before it expires.
         </p>
       </div>
 
-      <form method="post" action="/logout">
+      <form method="post" action="/workspace/reset">
         <input
           type="hidden"
           name="csrf_token"
           value="{{ csrf_token }}"
         >
+        <label><input type="checkbox" name="confirm_reset" value="yes" required> Confirm permanent deletion</label>
         <button type="submit" class="button secondary">
-          Sign out
+          Delete workspace and all data
         </button>
       </form>
     </div>
@@ -32,7 +33,7 @@
       aria-label="Workspace access"
     >
       <div>
-        <span class="small-label">ACCOUNT ACCESS</span>
+        <span class="small-label">WORKSPACE ACCESS</span>
         <h2>{{ overview.access.label }}</h2>
 
         {% if overview.access.paid and overview.access.plan %}
@@ -59,44 +60,7 @@
           </div>
         {% endif %}
 
-        {% if overview.access.trial_ends_at %}
-          <p class="muted">
-            Trial ends:
-            <strong>
-              {{ datetime_label(overview.access.trial_ends_at) }}
-            </strong>
 
-            {% if overview.access.trial_remaining_hours is not none %}
-              · Approximately
-              {{ overview.access.trial_remaining_hours }}
-              {% if overview.access.trial_remaining_hours == 1 %}
-                hour
-              {% else %}
-                hours
-              {% endif %}
-              remaining
-            {% endif %}
-          </p>
-        {% endif %}
-
-        {% if overview.access.label == "Ready to begin" %}
-          <p class="muted">
-            You can prepare your first client before starting the trial.
-            The 72-hour period starts with the first confirmed
-            real X Content CSV import.
-          </p>
-        {% elif overview.access.label == "Trial" %}
-          <p class="muted">
-            Your free trial includes one client and one published
-            monthly report. A report can have multiple saved versions.
-            Changing plans does not restart the trial.
-          </p>
-        {% elif overview.access.label == "Read-only" %}
-          <p class="muted">
-            Existing client data and reports remain available to read.
-            Review billing before attempting changes.
-          </p>
-        {% endif %}
       </div>
 
       
@@ -330,7 +294,7 @@
         <h3>Example report</h3>
         <p>
           Explore a fictional reporting workflow without
-          using your client allowance or starting a trial.
+          using your workspace storage.
         </p>
         <a class="text-link" href="/sample/workspace">
           Explore example
